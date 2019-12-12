@@ -1,0 +1,43 @@
+{
+    "name": "illuminatech/data-provider",
+    "description": "Provides support for Laravel...",
+    "keywords": ["laravel", "data", "provider", "query", "builder", "rest", "api"],
+    "license": "BSD-3-Clause",
+    "support": {
+        "issues": "https://github.com/illuminatech/data-provider/issues",
+        "wiki": "https://github.com/illuminatech/data-provider/wiki",
+        "source": "https://github.com/illuminatech/data-provider"
+    },
+    "authors": [
+        {
+            "name": "Paul Klimov",
+            "email": "klimov.paul@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.2",
+        "illuminate/support": "^5.8 || ^6.0"
+    },
+    "require-dev": {
+        "illuminate/database": "*",
+        "illuminate/http": "*",
+        "illuminate/pagination": "*",
+        "illuminate/config": "*",
+        "phpunit/phpunit": "^7.5 || ^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Illuminatech\\DataProvider\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Illuminatech\\DataProvider\\Test\\": "tests"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
+}
