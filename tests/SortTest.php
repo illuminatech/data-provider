@@ -48,8 +48,8 @@ class SortTest extends TestCase
             'name',
         ]);
 
-        $this->assertSame(['name' => 'asc'], $sort->detectOrders(['sort' => 'name']));
-        $this->assertSame(['name' => 'desc'], $sort->detectOrders(['sort' => '-name']));
+        $this->assertSame(['name' => 'asc'], $sort->detectOrders('name'));
+        $this->assertSame(['name' => 'desc'], $sort->detectOrders('-name'));
     }
 
     /**
@@ -65,9 +65,9 @@ class SortTest extends TestCase
         ]);
 
         $sort->enableMultiSort = false;
-        $this->assertSame(['id' => 'asc'], $sort->detectOrders(['sort' => 'id,-name']));
+        $this->assertSame(['id' => 'asc'], $sort->detectOrders('id,-name'));
 
         $sort->enableMultiSort = true;
-        $this->assertSame(['id' => 'asc', 'name' => 'desc'], $sort->detectOrders(['sort' => 'id,-name']));
+        $this->assertSame(['id' => 'asc', 'name' => 'desc'], $sort->detectOrders('id,-name'));
     }
 }

@@ -7,8 +7,6 @@
 
 namespace Illuminatech\DataProvider;
 
-use Symfony\Component\HttpFoundation\Request;
-
 /**
  * Sort
  *
@@ -17,18 +15,36 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class Sort
 {
-    private $attributes = [];
-
+    /**
+     * @var array the order that should be used when the processed request does not specify any order.
+     * The array keys are attribute names and the array values are the corresponding sort directions. For example:
+     *
+     * ```php
+     * [
+     *     'name' => 'asc',
+     *     'created_at' => 'desc',
+     * ]
+     * ```
+     *
+     * @see attributeOrders
+     */
     public $defaultOrder = [];
 
-    public $sortParam = 'sort';
+    /**
+     * @var bool whether the sorting can be applied to multiple attributes simultaneously.
+     * Defaults to `false`, which means each time the data can only be sorted by one attribute.
+     */
+    public $enableMultiSort = false;
 
     /**
      * @var string the character used to separate different attributes that need to be sorted by.
      */
     public $separator = ',';
 
-    public $enableMultiSort = false;
+    /**
+     * @var array
+     */
+    private $attributes = [];
 
     /**
      * @return array
@@ -77,14 +93,18 @@ class Sort
         return $attributes;
     }
 
-    public function detectOrders($request)
+    /**
+     * Returns the requested sort information.
+     *
+     * @param array|string $rawSort requested raw sort value.
+     * @return array sort directions in format: `[attribute => direction]`.
+     */
+    public function detectOrders($rawSort): array
     {
-        $params = $request instanceof Request ? $request->query->all() : $request;
-
         $orders = [];
 
-        if (isset($params[$this->sortParam])) {
-            foreach ($this->parseSortParam($params[$this->sortParam]) as $attribute) {
+        if (! empty($rawSort)) {
+            foreach ($this->parseSortParam($rawSort) as $attribute) {
                 $descending = false;
                 if (strncmp($attribute, '-', 1) === 0) {
                     $descending = true;
@@ -108,7 +128,7 @@ class Sort
     }
 
     /**
-     * Parses the value of {@see sortParam} into an array of sort attributes.
+     * Parses the value of sort specification into an array of sort attributes.
      *
      * The format must be the attribute name only for ascending
      * or the attribute name prefixed with `-` for descending.
@@ -123,13 +143,12 @@ class Sort
      * ]
      * ```
      *
-     * @param string $param the value of the {@see sortParam}.
+     * @param array|string $param the raw sort value.
      * @return array the valid sort attributes.
      * @see $separator for the attribute name separator.
-     * @see $sortParam
      */
-    protected function parseSortParam($param)
+    protected function parseSortParam($param): array
     {
-        return is_scalar($param) ? explode($this->separator, $param) : [];
+        return is_array($param) ? $param : explode($this->separator, $param);
     }
 }

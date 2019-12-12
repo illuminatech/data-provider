@@ -20,17 +20,17 @@ use Symfony\Component\HttpFoundation\Request;
 class DataProvider
 {
     /**
-     * @var \Illuminate\Database\Query\Builder|\Illuminate\Support\Collection|object data source.
+     * @var \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object data source.
      */
-    public $source;
+    protected $source;
 
     /**
-     * @var array instance config.
+     * @var array this instance config.
      */
-    public $config = [];
+    protected $config = [];
 
     /**
-     * @var \Illuminatech\DataProvider\FilterContract[]|array
+     * @var \Illuminatech\DataProvider\FilterContract[] list of filters indexed by request param name.
      */
     protected $filters = [];
 
@@ -39,18 +39,29 @@ class DataProvider
      */
     protected $sort;
 
-    public function __construct($source)
+    /**
+     * Constructor.
+     *
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object|string $source data source.
+     * @param array $config
+     */
+    public function __construct($source, array $config = null)
     {
         if (is_object($source)) {
             $this->source = $source;
         } elseif (is_string($source)) {
             $this->source = $source::query();
         } else {
-            throw new \InvalidArgumentException("Unsupported source type: ".gettype($source));
+            throw new \InvalidArgumentException('Unsupported source type: '.gettype($source));
         }
+
+        // @todo define and use config
+        $this->config = array_replace_recursive([], $config ?? []);
     }
 
     /**
+     * Applies given request to the {@see source}, applying filters, sort and so on to it.
+     *
      * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
      * @return \Illuminate\Database\Query\Builder|\Illuminate\Support\Collection|object adjusted data source.
      */
@@ -67,7 +78,7 @@ class DataProvider
 
         // apply sort
         if ($this->sort !== null) {
-            foreach ($this->sort->detectOrders($params) as $column => $direction) {
+            foreach ($this->sort->detectOrders($params['sort'] ?? null) as $column => $direction) {
                 $this->source->orderBy($column, $direction);
             }
         }
@@ -85,6 +96,11 @@ class DataProvider
         $this->sort = $sort;
 
         return $this;
+    }
+
+    public function getSort(): ?Sort
+    {
+        return $this->sort;
     }
 
     /**
@@ -106,7 +122,13 @@ class DataProvider
         return $this;
     }
 
-    protected function normalizeFilters($rawFilters): array
+    /**
+     * Normalizes filters definition.
+     *
+     * @param iterable $rawFilters raw filters list.
+     * @return \Illuminatech\DataProvider\FilterContract[] filter instances indexed by request param name.
+     */
+    protected function normalizeFilters(iterable $rawFilters): array
     {
         $filters = [];
         foreach ($rawFilters as $name => $rawFilter) {
@@ -124,6 +146,8 @@ class DataProvider
                 $filters[$rawFilter] = new FilterExact($rawFilter);
                 continue;
             }
+
+            // @todo search filter
 
             throw new \InvalidArgumentException('Unsupported filter specification: '.gettype($name).' => '.gettype($rawFilter));
         }

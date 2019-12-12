@@ -5,6 +5,7 @@ namespace Illuminatech\DataProvider\Test;
 use Illuminatech\DataProvider\DataProvider;
 use Illuminatech\DataProvider\Filters\FilterCallback;
 use Illuminatech\DataProvider\Filters\FilterExact;
+use Illuminatech\DataProvider\Sort;
 use Illuminatech\DataProvider\Test\Support\Item;
 
 class DataProviderTest extends TestCase
@@ -39,6 +40,23 @@ class DataProviderTest extends TestCase
         $this->assertTrue($filters['callback'] instanceof FilterCallback);
     }
 
+    public function testSetupSort()
+    {
+        $dataProvider = new DataProvider(Item::class);
+
+        $dataProvider->setSort(['id', 'name']);
+
+        $sort = $dataProvider->getSort();
+
+        $this->assertTrue($sort instanceof Sort);
+
+        $this->assertArrayHasKey('id', $sort->getAttributes());
+        $this->assertArrayHasKey('name', $sort->getAttributes());
+    }
+
+    /**
+     * @depends testSetupSort
+     */
     public function testSort()
     {
         $items = (new DataProvider(Item::class))
