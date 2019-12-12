@@ -7,6 +7,7 @@
 
 namespace Illuminatech\DataProvider;
 
+use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Filters\FilterCallback;
 use Illuminatech\DataProvider\Filters\FilterExact;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,6 +73,10 @@ class DataProvider
         // apply filter
         if (isset($params['filter'])) {
             foreach ($params['filter'] as $name => $value) {
+                if (! isset($this->filters[$name])) {
+                    throw new InvalidQueryException('Filter "'.$name.'" is not supported.');
+                }
+
                 $this->filters[$name]->apply($this->source, $name, $value);
             }
         }

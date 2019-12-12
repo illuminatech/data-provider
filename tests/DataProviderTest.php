@@ -3,6 +3,7 @@
 namespace Illuminatech\DataProvider\Test;
 
 use Illuminatech\DataProvider\DataProvider;
+use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Filters\FilterCallback;
 use Illuminatech\DataProvider\Filters\FilterExact;
 use Illuminatech\DataProvider\Sort;
@@ -38,6 +39,26 @@ class DataProviderTest extends TestCase
         $this->assertTrue($filters['id'] instanceof FilterExact);
         $this->assertTrue($filters['search'] instanceof FilterExact);
         $this->assertTrue($filters['callback'] instanceof FilterCallback);
+    }
+
+    /**
+     * @depends testNormalizeFilters
+     */
+    public function testNotSupportedFilter()
+    {
+        $dataProvider = new DataProvider(Item::class);
+
+        $dataProvider->setFilters([
+            'search' => new FilterExact('name'),
+        ]);
+
+        $this->expectException(InvalidQueryException::class);
+
+        $dataProvider->prepare([
+            'filter' => [
+                'fake' => 'some'
+            ],
+        ]);
     }
 
     public function testSetupSort()

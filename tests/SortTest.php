@@ -2,6 +2,7 @@
 
 namespace Illuminatech\DataProvider\Test;
 
+use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Sort;
 
 class SortTest extends TestCase
@@ -64,10 +65,29 @@ class SortTest extends TestCase
             'name',
         ]);
 
-        $sort->enableMultiSort = false;
-        $this->assertSame(['id' => 'asc'], $sort->detectOrders('id,-name'));
-
         $sort->enableMultiSort = true;
         $this->assertSame(['id' => 'asc', 'name' => 'desc'], $sort->detectOrders('id,-name'));
+
+        $sort->enableMultiSort = false;
+
+        $this->expectException(InvalidQueryException::class);
+        $sort->detectOrders('id,-name');
+    }
+
+    /**
+     * @depends testDetectOrders
+     */
+    public function testNotSupportedAttribute()
+    {
+        $sort = new Sort();
+
+        $sort->setAttributes([
+            'id',
+            'name',
+        ]);
+
+        $this->expectException(InvalidQueryException::class);
+
+        $sort->detectOrders('slug');
     }
 }

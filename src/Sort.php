@@ -7,6 +7,8 @@
 
 namespace Illuminatech\DataProvider;
 
+use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
+
 /**
  * Sort
  *
@@ -103,25 +105,29 @@ class Sort
     {
         $orders = [];
 
-        if (! empty($rawSort)) {
-            foreach ($this->parseSortParam($rawSort) as $attribute) {
-                $descending = false;
-                if (strncmp($attribute, '-', 1) === 0) {
-                    $descending = true;
-                    $attribute = substr($attribute, 1);
-                }
+        if (empty($rawSort)) {
+            return $this->defaultOrder;
+        }
 
-                if (isset($this->attributes[$attribute])) {
-                    $orders[$attribute] = $descending ? 'desc' : 'asc';
-                    if (! $this->enableMultiSort) {
-                        return $orders;
-                    }
-                }
+        $sorts = $this->parseSortParam($rawSort);
+        if (! $this->enableMultiSort && count($sorts) > 1) {
+            throw new InvalidQueryException('Sort by multiple fields is not supported.');
+        }
+
+        foreach ($sorts as $attribute) {
+            $descending = false;
+            if (strncmp($attribute, '-', 1) === 0) {
+                $descending = true;
+                $attribute = substr($attribute, 1);
+            }
+
+            if (isset($this->attributes[$attribute])) {
+                $orders[$attribute] = $descending ? 'desc' : 'asc';
             }
         }
 
-        if (empty($orders) && is_array($this->defaultOrder)) {
-            $orders = $this->defaultOrder;
+        if (empty($orders)) {
+            throw new InvalidQueryException('Sort by '.implode($this->separator, $sorts).' is not supported.');
         }
 
         return $orders;
