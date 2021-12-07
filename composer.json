@@ -1,6 +1,6 @@
 {
     "name": "illuminatech/data-provider",
-    "description": "Provides support for Laravel...",
+    "description": "Allows easy build for DB queries from API requests",
     "keywords": ["laravel", "data", "provider", "query", "builder", "rest", "api"],
     "license": "BSD-3-Clause",
     "support": {
@@ -15,15 +15,14 @@
         }
     ],
     "require": {
-        "php": "^7.2",
-        "illuminate/support": "^5.8 || ^6.0"
+        "illuminate/support": "^5.8 || ^6.0 || ^7.0 || ^8.0"
     },
     "require-dev": {
         "illuminate/database": "*",
         "illuminate/http": "*",
         "illuminate/pagination": "*",
         "illuminate/config": "*",
-        "phpunit/phpunit": "^7.5 || ^8.0"
+        "phpunit/phpunit": "^7.5 || ^8.0 || ^9.3"
     },
     "autoload": {
         "psr-4": {
