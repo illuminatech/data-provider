@@ -2,6 +2,7 @@
 
 namespace Illuminatech\DataProvider\Test;
 
+use Illuminate\Config\Repository;
 use Illuminatech\DataProvider\DataProvider;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Filters\FilterCallback;
@@ -87,5 +88,28 @@ class DataProviderTest extends TestCase
 
         $this->assertSame(10, $items[0]['id']);
         $this->assertSame(9, $items[1]['id']);
+    }
+
+    /**
+     * @depends testSort
+     */
+    public function testGetConfigFromContainer()
+    {
+        $sortKeyword = 'sort-from-config';
+
+        $this->app->instance('config', new Repository([
+            'data_provider' => [
+                'sort' => [
+                    'keyword' => $sortKeyword,
+                ],
+            ],
+        ]));
+
+        $items = (new DataProvider(Item::class))
+            ->setSort(['id', 'name'])
+            ->prepare([$sortKeyword => '-id'])
+            ->get();
+
+        $this->assertSame(10, $items[0]['id']);
     }
 }

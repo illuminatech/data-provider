@@ -7,6 +7,7 @@
 
 namespace Illuminatech\DataProvider;
 
+use Illuminate\Container\Container;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Filters\FilterCallback;
 use Illuminatech\DataProvider\Filters\FilterExact;
@@ -56,8 +57,11 @@ class DataProvider
             throw new \InvalidArgumentException('Unsupported source type: ' . gettype($source));
         }
 
-        // @todo define and use config
-        $this->config = array_replace_recursive([], $config);
+        $this->config = array_replace_recursive(
+            require __DIR__ . '/../config/data_provider.php',
+            Container::getInstance()->has('config') ? Container::getInstance()->get('config')->get('data_provider') : [],
+            $config
+        );
     }
 
     /**
@@ -71,8 +75,10 @@ class DataProvider
         $params = $request instanceof Request ? $request->query->all() : $request;
 
         // apply filter
-        if (isset($params['filter'])) {
-            foreach ($params['filter'] as $name => $value) {
+        $filterKeyword = $this->config['filter']['keyword'];
+
+        if (isset($params[$filterKeyword])) {
+            foreach ($params[$filterKeyword] as $name => $value) {
                 if (!isset($this->filters[$name])) {
                     throw new InvalidQueryException('Filter "' . $name . '" is not supported.');
                 }
@@ -82,8 +88,9 @@ class DataProvider
         }
 
         // apply sort
+        $sortKeyword = $this->config['sort']['keyword'];
         if ($this->sort !== null) {
-            foreach ($this->sort->detectOrders($params['sort'] ?? null) as $column => $direction) {
+            foreach ($this->sort->detectOrders($params[$sortKeyword] ?? null) as $column => $direction) {
                 $this->source->orderBy($column, $direction);
             }
         }
@@ -96,6 +103,8 @@ class DataProvider
         if (!$sort instanceof Sort) {
             $sort = (new Sort())
                 ->setAttributes($sort);
+
+            $sort->enableMultiSort = $this->config['sort']['enable_multisort'];
         }
 
         $this->sort = $sort;
