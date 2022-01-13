@@ -3,6 +3,9 @@
 namespace Illuminatech\DataProvider\Test;
 
 use Illuminate\Config\Repository;
+use Illuminate\Contracts\Pagination\CursorPaginator;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminatech\DataProvider\DataProvider;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Filters\FilterCallback;
@@ -111,5 +114,34 @@ class DataProviderTest extends TestCase
             ->get();
 
         $this->assertSame(10, $items[0]['id']);
+    }
+
+    public function testPaginate()
+    {
+        $items = (new DataProvider(Item::class))
+            ->paginate([
+                'per-page' => 2,
+                'page' => 2,
+            ]);
+
+        $this->assertTrue($items instanceof LengthAwarePaginator);
+        $this->assertCount(2, $items->items());
+
+        $items = (new DataProvider(Item::class))
+            ->simplePaginate([
+                'per-page' => 2,
+                'page' => 2,
+            ]);
+
+        $this->assertTrue($items instanceof Paginator);
+        $this->assertCount(2, $items->items());
+
+        $items = (new DataProvider(Item::class))
+            ->cursorPaginate([
+                'per-page' => 2,
+            ]);
+
+        $this->assertTrue($items instanceof CursorPaginator);
+        $this->assertCount(2, $items->items());
     }
 }

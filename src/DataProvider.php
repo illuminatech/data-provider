@@ -72,7 +72,7 @@ class DataProvider
      */
     public function prepare($request): object
     {
-        $params = $request instanceof Request ? $request->query->all() : $request;
+        $params = $this->extractRequestParams($request);
 
         // apply filter
         $filterKeyword = $this->config['filter']['keyword'];
@@ -98,13 +98,62 @@ class DataProvider
         return $this->source;
     }
 
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function paginate($request): object
+    {
+        $params = $this->extractRequestParams($request);
+
+        $source = $this->prepare($params);
+
+        $pagination = (new Pagination($this->config['pagination']))
+            ->fill($params);
+
+        return $source->paginate($pagination->perPage, ['*'], $pagination->pageKeyword, $pagination->page)
+            ->appends($params);
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
+     * @return \Illuminate\Contracts\Pagination\Paginator
+     */
+    public function simplePaginate($request): object
+    {
+        $params = $this->extractRequestParams($request);
+
+        $source = $this->prepare($params);
+
+        $pagination = (new Pagination($this->config['pagination']))
+            ->fill($params);
+
+        return $source->simplePaginate($pagination->perPage, ['*'], $pagination->pageKeyword, $pagination->page)
+            ->appends($params);
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
+     * @return \Illuminate\Contracts\Pagination\CursorPaginator
+     */
+    public function cursorPaginate($request): object
+    {
+        $params = $this->extractRequestParams($request);
+
+        $source = $this->prepare($params);
+
+        $pagination = (new Pagination($this->config['pagination']))
+            ->fill($params);
+
+        return $source->cursorPaginate($pagination->perPage, ['*'], $pagination->cursorKeyword, $pagination->cursor)
+            ->appends($params);
+    }
+
     public function setSort($sort): self
     {
         if (!$sort instanceof Sort) {
-            $sort = (new Sort())
+            $sort = $this->makeSort()
                 ->setAttributes($sort);
-
-            $sort->enableMultiSort = $this->config['sort']['enable_multisort'];
         }
 
         $this->sort = $sort;
@@ -115,6 +164,19 @@ class DataProvider
     public function getSort(): ?Sort
     {
         return $this->sort;
+    }
+
+    /**
+     * Creates default sort instance.
+     *
+     * @return \Illuminatech\DataProvider\Sort
+     */
+    protected function makeSort(): Sort
+    {
+        $sort = new Sort();
+        $sort->enableMultiSort = $this->config['sort']['enable_multisort'];
+
+        return $sort;
     }
 
     /**
@@ -134,6 +196,15 @@ class DataProvider
         $this->filters = $this->normalizeFilters($filters);
 
         return $this;
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
+     * @return iterable request params.
+     */
+    protected function extractRequestParams($request)
+    {
+        return $request instanceof Request ? $request->query->all() : $request;
     }
 
     /**
