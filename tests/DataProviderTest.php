@@ -136,12 +136,14 @@ class DataProviderTest extends TestCase
         $this->assertTrue($items instanceof Paginator);
         $this->assertCount(2, $items->items());
 
-        $items = (new DataProvider(Item::class))
-            ->cursorPaginate([
-                'per-page' => 2,
-            ]);
+        if (class_exists(CursorPaginator::class)) {
+            $items = (new DataProvider(Item::class))
+                ->cursorPaginate([
+                    'per-page' => 2,
+                ]);
 
-        $this->assertTrue($items instanceof CursorPaginator);
-        $this->assertCount(2, $items->items());
+            $this->assertTrue($items instanceof CursorPaginator);
+            $this->assertCount(2, $items->items());
+        }
     }
 }
