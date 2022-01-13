@@ -15,5 +15,13 @@ namespace Illuminatech\DataProvider;
  */
 interface FilterContract
 {
+    /**
+     * Applies this filter to the given data source.
+     *
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Support\Collection|object $source raw data source.
+     * @param string $name filter attribute name.
+     * @param mixed $value filter value.
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Support\Collection|object adjusted data source.
+     */
     public function apply(object $source, string $name, $value): object;
 }

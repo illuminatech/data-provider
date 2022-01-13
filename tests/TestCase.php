@@ -30,7 +30,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
         $db = new Manager;
 
         $db->addConnection([
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
         ]);
 

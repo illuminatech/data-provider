@@ -77,12 +77,12 @@ class Sort
     {
         $attributes = [];
         foreach ($rawAttributes as $name => $attribute) {
-            if (! is_array($attribute)) {
+            if (!is_array($attribute)) {
                 $attributes[$attribute] = [
                     'asc' => [$attribute => 'asc'],
                     'desc' => [$attribute => 'desc'],
                 ];
-            } elseif (! isset($attribute['asc'], $attribute['desc'])) {
+            } elseif (!isset($attribute['asc'], $attribute['desc'])) {
                 $attributes[$name] = array_merge([
                     'asc' => [$name => 'asc'],
                     'desc' => [$name => 'desc'],
@@ -110,7 +110,7 @@ class Sort
         }
 
         $sorts = $this->parseSortParam($rawSort);
-        if (! $this->enableMultiSort && count($sorts) > 1) {
+        if (!$this->enableMultiSort && count($sorts) > 1) {
             throw new InvalidQueryException('Sort by multiple fields is not supported.');
         }
 

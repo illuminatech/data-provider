@@ -13,7 +13,7 @@ For license information check the [LICENSE](LICENSE.md)-file.
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/illuminatech/data-provider.svg)](https://packagist.org/packages/illuminatech/data-provider)
 [![Total Downloads](https://img.shields.io/packagist/dt/illuminatech/data-provider.svg)](https://packagist.org/packages/illuminatech/data-provider)
-[![Build Status](https://travis-ci.org/illuminatech/data-provider.svg?branch=master)](https://travis-ci.org/illuminatech/data-provider)
+[![Build Status](https://github.com/illuminatech/data-provider/workflows/build/badge.svg)](https://github.com/illuminatech/data-provider/actions)
 
 
 Installation

@@ -46,18 +46,18 @@ class DataProvider
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object|string $source data source.
      * @param array $config
      */
-    public function __construct($source, array $config = null)
+    public function __construct($source, array $config = [])
     {
         if (is_object($source)) {
             $this->source = $source;
         } elseif (is_string($source)) {
             $this->source = $source::query();
         } else {
-            throw new \InvalidArgumentException('Unsupported source type: '.gettype($source));
+            throw new \InvalidArgumentException('Unsupported source type: ' . gettype($source));
         }
 
         // @todo define and use config
-        $this->config = array_replace_recursive([], $config ?? []);
+        $this->config = array_replace_recursive([], $config);
     }
 
     /**
@@ -73,8 +73,8 @@ class DataProvider
         // apply filter
         if (isset($params['filter'])) {
             foreach ($params['filter'] as $name => $value) {
-                if (! isset($this->filters[$name])) {
-                    throw new InvalidQueryException('Filter "'.$name.'" is not supported.');
+                if (!isset($this->filters[$name])) {
+                    throw new InvalidQueryException('Filter "' . $name . '" is not supported.');
                 }
 
                 $this->filters[$name]->apply($this->source, $name, $value);
@@ -93,7 +93,7 @@ class DataProvider
 
     public function setSort($sort): self
     {
-        if (! $sort instanceof Sort) {
+        if (!$sort instanceof Sort) {
             $sort = (new Sort())
                 ->setAttributes($sort);
         }
@@ -154,7 +154,7 @@ class DataProvider
 
             // @todo search filter
 
-            throw new \InvalidArgumentException('Unsupported filter specification: '.gettype($name).' => '.gettype($rawFilter));
+            throw new \InvalidArgumentException('Unsupported filter specification: ' . gettype($name) . ' => ' . gettype($rawFilter));
         }
 
         return $filters;
