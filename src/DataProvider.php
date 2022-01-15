@@ -111,7 +111,7 @@ class DataProvider
         $pagination = (new Pagination($this->config['pagination']))
             ->fill($params);
 
-        return $source->paginate($pagination->perPage, ['*'], $pagination->pageKeyword, $pagination->page)
+        return $source->paginate($pagination->perPage, ['*'], $pagination->getPageFullKeyword(), $pagination->page)
             ->appends($params);
     }
 
@@ -128,7 +128,7 @@ class DataProvider
         $pagination = (new Pagination($this->config['pagination']))
             ->fill($params);
 
-        return $source->simplePaginate($pagination->perPage, ['*'], $pagination->pageKeyword, $pagination->page)
+        return $source->simplePaginate($pagination->perPage, ['*'], $pagination->getPageFullKeyword(), $pagination->page)
             ->appends($params);
     }
 
@@ -145,7 +145,7 @@ class DataProvider
         $pagination = (new Pagination($this->config['pagination']))
             ->fill($params);
 
-        return $source->cursorPaginate($pagination->perPage, ['*'], $pagination->cursorKeyword, $pagination->cursor)
+        return $source->cursorPaginate($pagination->perPage, ['*'], $pagination->getCursorFullKeyword(), $pagination->cursor)
             ->appends($params);
     }
 

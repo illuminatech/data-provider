@@ -146,4 +146,23 @@ class DataProviderTest extends TestCase
             $this->assertCount(2, $items->items());
         }
     }
+
+    /**
+     * @depends testPaginate
+     */
+    public function testPaginateFromNestedParams()
+    {
+        $items = (new DataProvider(Item::class, ['pagination' => ['keyword' => 'pagination']]))
+            ->paginate([
+                'pagination' => [
+                    'per-page' => 2,
+                    'page' => 2,
+                ],
+            ]);
+
+        $this->assertTrue($items instanceof LengthAwarePaginator);
+        $this->assertCount(2, $items->items());
+
+        $this->assertStringContainsString(urlencode('pagination[page]'), $items->nextPageUrl());
+    }
 }

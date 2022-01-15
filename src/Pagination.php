@@ -19,6 +19,8 @@ use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
  */
 class Pagination
 {
+    public $keyword;
+
     public $pageKeyword = 'page';
 
     public $cursorKeyword = 'cursor';
@@ -39,6 +41,7 @@ class Pagination
 
     public function __construct(array $config = [])
     {
+        $this->keyword = $config['keyword'] ?? $this->keyword;
         $this->pageKeyword = $config['page']['keyword'] ?? $this->pageKeyword;
         $this->cursorKeyword = $config['cursor']['keyword'] ?? $this->cursorKeyword;
         $this->perPageKeyword = $config['per_page']['keyword'] ?? $this->perPageKeyword;
@@ -55,6 +58,14 @@ class Pagination
      */
     public function fill($params): self
     {
+        if ($this->keyword !== null) {
+            if (empty($params[$this->keyword])) {
+                return $this;
+            }
+
+            $params = $params[$this->keyword];
+        }
+
         if (isset($params[$this->perPageKeyword])) {
             $perPage = $params[$this->perPageKeyword];
 
@@ -90,5 +101,29 @@ class Pagination
         }
 
         return $this;
+    }
+
+    /**
+     * @return string page keyword for the paginator instance.
+     */
+    public function getPageFullKeyword(): string
+    {
+        if ($this->keyword === null) {
+            return $this->pageKeyword;
+        }
+
+        return $this->keyword . '[' . $this->pageKeyword . ']';
+    }
+
+    /**
+     * @return string page keyword for the paginator instance.
+     */
+    public function getCursorFullKeyword(): string
+    {
+        if ($this->keyword === null) {
+            return $this->cursorKeyword;
+        }
+
+        return $this->keyword . '[' . $this->cursorKeyword . ']';
     }
 }

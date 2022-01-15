@@ -12,6 +12,7 @@ return [
         'enable_multisort' => false,
     ],
     'pagination' => [
+        'keyword' => null,
         'page' => [
             'keyword' => 'page',
         ],
