@@ -8,6 +8,7 @@
 namespace Illuminatech\DataProvider;
 
 use Illuminate\Container\Container;
+use Illuminate\Support\Collection;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Filters\FilterCallback;
 use Illuminatech\DataProvider\Filters\FilterExact;
@@ -49,7 +50,7 @@ class DataProvider
     /**
      * Constructor.
      *
-     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object|string $source data source.
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|array|object|string $source data source.
      * @param array $config
      */
     public function __construct($source, array $config = [])
@@ -58,6 +59,8 @@ class DataProvider
             $this->source = $source;
         } elseif (is_string($source)) {
             $this->source = $source::query();
+        } elseif (is_array($source)) {
+            $this->source = new Collection($source);
         } else {
             throw new \InvalidArgumentException('Unsupported source type: ' . gettype($source));
         }
@@ -71,12 +74,15 @@ class DataProvider
 
     /**
      * Applies given request to the {@see source}, applying filters, sort and so on to it.
+     * This method is immutable, leaving original {@see source} object intact.
      *
      * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
      * @return \Illuminate\Database\Query\Builder|\Illuminate\Support\Collection|object adjusted data source.
      */
     public function prepare($request): object
     {
+        $source = clone $this->source;
+
         $params = $this->extractRequestParams($request);
 
         // apply filter
@@ -88,7 +94,7 @@ class DataProvider
                     throw new InvalidQueryException('Filter "' . $name . '" is not supported.');
                 }
 
-                $this->filters[$name]->apply($this->source, $name, $value);
+                $this->filters[$name]->apply($source, $name, $value);
             }
         }
 
@@ -96,11 +102,11 @@ class DataProvider
         $sortKeyword = $this->config['sort']['keyword'];
         if ($this->sort !== null) {
             foreach ($this->sort->detectOrders($params[$sortKeyword] ?? null) as $column => $direction) {
-                $this->source->orderBy($column, $direction);
+                $source->orderBy($column, $direction);
             }
         }
 
-        return $this->source;
+        return $source;
     }
 
     /**
@@ -291,5 +297,20 @@ class DataProvider
         $this->getSort()->defaultOrder = $defaultSort;
 
         return $this;
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
+     * @return \Illuminate\Database\Eloquent\Model[]|\Illuminate\Support\Collection|array rows.
+     */
+    public function get($request)
+    {
+        $source = $this->prepare($request);
+
+        if ($source instanceof Collection) {
+            return $source;
+        }
+
+        return $source->get();
     }
 }

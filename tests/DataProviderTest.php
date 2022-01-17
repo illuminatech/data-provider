@@ -6,6 +6,7 @@ use Illuminate\Config\Repository;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Support\Collection;
 use Illuminatech\DataProvider\DataProvider;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Filters\FilterCallback;
@@ -181,5 +182,46 @@ class DataProviderTest extends TestCase
 
         $this->assertCount(1, $attributes);
         $this->assertTrue(isset($attributes['id']));
+    }
+
+    /**
+     * @depends testNormalizeFilters
+     */
+    public function testPreserveSourceState()
+    {
+        $source = Item::query();
+
+        $preparedSource = (new DataProvider($source))
+            ->filters([
+                'id'
+            ])
+            ->prepare([
+                'filter' => [
+                    'id' => 1,
+                ],
+            ]);
+
+        $this->assertNotEquals($source->count(), $preparedSource->count());
+    }
+
+    public function testGet()
+    {
+        $items = (new DataProvider(Item::class))->get([]);
+
+        $this->assertTrue($items instanceof Collection);
+        $this->assertEquals(Item::query()->count(), $items->count());
+
+        $source = [
+            [
+                'id' => 1,
+                'name' => 'foo',
+            ],
+            [
+                'id' => 2,
+                'name' => 'bar',
+            ],
+        ];
+        $items = (new DataProvider($source))->get([]);
+        $this->assertEquals(count($source), $items->count());
     }
 }
