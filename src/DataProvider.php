@@ -120,9 +120,7 @@ class DataProvider
         $source = $this->prepare($params);
 
         return $this->getPagination()
-            ->fill($params)
-            ->paginate($source)
-            ->appends($params);
+            ->paginate($source, $params);
     }
 
     /**
@@ -136,9 +134,7 @@ class DataProvider
         $source = $this->prepare($params);
 
         return $this->getPagination()
-            ->fill($params)
-            ->simplePaginate($source)
-            ->appends($params);
+            ->simplePaginate($source, $params);
     }
 
     /**
@@ -152,9 +148,7 @@ class DataProvider
         $source = $this->prepare($params);
 
         return $this->getPagination()
-            ->fill($params)
-            ->cursorPaginate($source)
-            ->appends($params);
+            ->cursorPaginate($source, $params);
     }
 
     public function setSort($sort): self
@@ -238,7 +232,7 @@ class DataProvider
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
-     * @return iterable request params.
+     * @return array|iterable request params.
      */
     protected function extractRequestParams($request)
     {

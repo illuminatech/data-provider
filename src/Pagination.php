@@ -21,6 +21,11 @@ class Pagination
 {
     public $keyword;
 
+    /**
+     * @var bool whether to append query string values to the paginator.
+     */
+    public $appends = true;
+
     public $pageKeyword = 'page';
 
     public $cursorKeyword = 'cursor';
@@ -42,6 +47,7 @@ class Pagination
     public function __construct(array $config = [])
     {
         $this->keyword = $config['keyword'] ?? $this->keyword;
+        $this->appends = $config['appends'] ?? $this->appends;
         $this->pageKeyword = $config['page']['keyword'] ?? $this->pageKeyword;
         $this->cursorKeyword = $config['cursor']['keyword'] ?? $this->cursorKeyword;
         $this->perPageKeyword = $config['per_page']['keyword'] ?? $this->perPageKeyword;
@@ -133,29 +139,56 @@ class Pagination
 
     /**
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
+     * @param array $params request parameters.
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator paginator instance.
      */
-    public function paginate(object $source): object
+    public function paginate(object $source, $params): object
     {
-        return $source->paginate($this->perPage, $this->extractSourceColumns($source), $this->getPageFullKeyword(), $this->page);
+        $this->fill($params);
+
+        $paginator = $source->paginate($this->perPage, $this->extractSourceColumns($source), $this->getPageFullKeyword(), $this->page);
+
+        if ($this->appends) {
+            $paginator->appends($params);
+        }
+
+        return $paginator;
     }
 
     /**
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
+     * @param array $params request parameters.
      * @return \Illuminate\Contracts\Pagination\Paginator paginator instance.
      */
-    public function simplePaginate(object $source): object
+    public function simplePaginate(object $source, $params): object
     {
-        return $source->simplePaginate($this->perPage, $this->extractSourceColumns($source), $this->getPageFullKeyword(), $this->page);
+        $this->fill($params);
+
+        $paginator = $source->simplePaginate($this->perPage, $this->extractSourceColumns($source), $this->getPageFullKeyword(), $this->page);
+
+        if ($this->appends) {
+            $paginator->appends($params);
+        }
+
+        return $paginator;
     }
 
     /**
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
+     * @param array $params request parameters.
      * @return \Illuminate\Contracts\Pagination\CursorPaginator paginator instance.
      */
-    public function cursorPaginate(object $source): object
+    public function cursorPaginate(object $source, $params): object
     {
-        return $source->cursorPaginate($this->perPage, $this->extractSourceColumns($source), $this->getCursorFullKeyword(), $this->cursor);
+        $this->fill($params);
+
+        $paginator = $source->cursorPaginate($this->perPage, $this->extractSourceColumns($source), $this->getCursorFullKeyword(), $this->cursor);
+
+        if ($this->appends) {
+            $paginator->appends($params);
+        }
+
+        return $paginator;
     }
 
     /**

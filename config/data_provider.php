@@ -13,6 +13,7 @@ return [
     ],
     'pagination' => [
         'keyword' => null,
+        'appends' => true, // whether to automatically append query string values to the paginator.
         'page' => [
             'keyword' => 'page',
         ],
