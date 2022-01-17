@@ -185,9 +185,9 @@ class Selector
 
             $relationFields = $fields[$relationName];
 
-            $source->with($relationName, function ($query) use ($relationFields, $value) {
+            $source->with([$relationName => function ($query) use ($relationFields, $value) {
                 return $this->applyFieldsRecursive($query, $relationFields, $value);
-            });
+            }]);
         }
 
         return $source;
