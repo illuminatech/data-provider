@@ -77,8 +77,14 @@ class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function createSchema(): void
     {
+        $this->getSchemaBuilder()->create('categories', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('name');
+        });
+
         $this->getSchemaBuilder()->create('items', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->unsignedBigInteger('category_id');
             $table->string('name');
             $table->string('slug');
         });
@@ -91,11 +97,18 @@ class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function seedDatabase(): void
     {
-        for ($i = 1; $i <= 10; $i++) {
-            $this->getConnection()->table('items')->insert([
-                'name' => 'Item '.$i,
-                'slug' => 'item-'.$i,
+        for ($c = 1; $c <= 5; $c++) {
+            $categoryId = $this->getConnection()->table('categories')->insertGetId([
+                'name' => 'Category ' . $c,
             ]);
+
+            for ($i = 1; $i <= 4; $i++) {
+                $this->getConnection()->table('items')->insert([
+                    'category_id' => $categoryId,
+                    'name' => 'Item ' . ($c - 1) * 4 + $i,
+                    'slug' => 'item-' . ($c - 1) * 4 + $i,
+                ]);
+            }
         }
     }
 }

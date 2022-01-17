@@ -231,15 +231,6 @@ class DataProvider
     }
 
     /**
-     * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
-     * @return array|iterable request params.
-     */
-    protected function extractRequestParams($request)
-    {
-        return $request instanceof Request ? $request->query->all() : $request;
-    }
-
-    /**
      * Normalizes filters definition.
      *
      * @param iterable $rawFilters raw filters list.
@@ -266,10 +257,19 @@ class DataProvider
 
             // @todo search filter
 
-            throw new \InvalidArgumentException('Unsupported filter specification: ' . gettype($name) . ' => ' . gettype($rawFilter));
+            throw new \InvalidArgumentException('Unsupported filter specification: ' . gettype($name) . ' => ' . is_object($rawFilter) ? get_class($rawFilter) : gettype($rawFilter));
         }
 
         return $filters;
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
+     * @return array|iterable request params.
+     */
+    protected function extractRequestParams($request)
+    {
+        return $request instanceof Request ? $request->query->all() : $request;
     }
 
     // Fluent interface :

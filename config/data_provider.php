@@ -4,6 +4,13 @@
  */
 
 return [
+    'fields' => [
+        'keyword' => 'fields',
+        'source_self_name' => false,
+    ],
+    'include' => [
+        'keyword' => 'include',
+    ],
     'filter' => [
         'keyword' => 'filter',
     ],

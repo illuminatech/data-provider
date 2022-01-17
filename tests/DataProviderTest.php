@@ -90,8 +90,8 @@ class DataProviderTest extends TestCase
             ->prepare(['sort' => '-id'])
             ->get();
 
-        $this->assertSame(10, $items[0]['id']);
-        $this->assertSame(9, $items[1]['id']);
+        $this->assertSame(20, $items[0]['id']);
+        $this->assertSame(19, $items[1]['id']);
     }
 
     /**
@@ -114,7 +114,7 @@ class DataProviderTest extends TestCase
             ->prepare([$sortKeyword => '-id'])
             ->get();
 
-        $this->assertSame(10, $items[0]['id']);
+        $this->assertSame(20, $items[0]['id']);
     }
 
     public function testPaginate()

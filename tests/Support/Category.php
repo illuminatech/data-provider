@@ -3,19 +3,17 @@
 namespace Illuminatech\DataProvider\Test\Support;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
- * @property int $category_id
  * @property string $name
- * @property string $slug
  *
- * @property-read Category $category
+ * @property \Illuminate\Database\Eloquent\Collection|Item[] $items
  *
  * @method static \Illuminate\Database\Eloquent\Builder|static query()
  */
-class Item extends Model
+class Category extends Model
 {
     /**
      * {@inheritdoc}
@@ -26,16 +24,14 @@ class Item extends Model
      * {@inheritdoc}
      */
     protected $fillable = [
-        'category_id',
         'name',
-        'slug',
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo|Category
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany|Item
      */
-    public function category(): BelongsTo
+    public function items(): HasMany
     {
-        return $this->belongsTo(Category::class);
+        return $this->hasMany(Item::class);
     }
 }
