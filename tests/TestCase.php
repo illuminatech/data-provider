@@ -105,8 +105,8 @@ class TestCase extends \PHPUnit\Framework\TestCase
             for ($i = 1; $i <= 4; $i++) {
                 $this->getConnection()->table('items')->insert([
                     'category_id' => $categoryId,
-                    'name' => 'Item ' . ($c - 1) * 4 + $i,
-                    'slug' => 'item-' . ($c - 1) * 4 + $i,
+                    'name' => 'Item ' . (($c - 1) * 4 + $i),
+                    'slug' => 'item-' . (($c - 1) * 4 + $i),
                 ]);
             }
         }
