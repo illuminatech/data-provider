@@ -58,6 +58,10 @@ class Pagination
      */
     public function fill($params): self
     {
+        $this->perPage = null;
+        $this->page = null;
+        $this->cursor = null;
+
         if ($this->keyword !== null) {
             if (empty($params[$this->keyword])) {
                 return $this;
@@ -125,5 +129,51 @@ class Pagination
         }
 
         return $this->keyword . '[' . $this->cursorKeyword . ']';
+    }
+
+    /**
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator paginator instance.
+     */
+    public function paginate(object $source): object
+    {
+        return $source->paginate($this->perPage, $this->extractSourceColumns($source), $this->getPageFullKeyword(), $this->page);
+    }
+
+    /**
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
+     * @return \Illuminate\Contracts\Pagination\Paginator paginator instance.
+     */
+    public function simplePaginate(object $source): object
+    {
+        return $source->simplePaginate($this->perPage, $this->extractSourceColumns($source), $this->getPageFullKeyword(), $this->page);
+    }
+
+    /**
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
+     * @return \Illuminate\Contracts\Pagination\CursorPaginator paginator instance.
+     */
+    public function cursorPaginate(object $source): object
+    {
+        return $source->cursorPaginate($this->perPage, $this->extractSourceColumns($source), $this->getCursorFullKeyword(), $this->cursor);
+    }
+
+    /**
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
+     * @return array list of source query columns.
+     */
+    protected function extractSourceColumns(object $source): array
+    {
+        $columns = null;
+
+        if (method_exists($source, 'getQuery')) {
+            $columns = $source->getQuery()->columns;
+        }
+
+        if (isset($source->columns)) {
+            $columns = $source->columns;
+        }
+
+        return $columns ?? ['*'];
     }
 }

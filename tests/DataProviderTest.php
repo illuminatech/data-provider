@@ -165,4 +165,21 @@ class DataProviderTest extends TestCase
 
         $this->assertStringContainsString(urlencode('pagination[page]'), $items->nextPageUrl());
     }
+
+    /**
+     * @depends testPaginate
+     */
+    public function testPaginatePreserveSelect()
+    {
+        $items = (new DataProvider(Item::query()->select(['id'])))
+            ->paginate([
+                'per-page' => 2,
+                'page' => 2,
+            ]);
+
+        $attributes = $items->items()[0]->getAttributes();
+
+        $this->assertCount(1, $attributes);
+        $this->assertTrue(isset($attributes['id']));
+    }
 }

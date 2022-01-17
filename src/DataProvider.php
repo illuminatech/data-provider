@@ -42,6 +42,11 @@ class DataProvider
     protected $sort;
 
     /**
+     * @var \Illuminatech\DataProvider\Pagination|null related pagination instance.
+     */
+    protected $pagination;
+
+    /**
      * Constructor.
      *
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object|string $source data source.
@@ -100,7 +105,7 @@ class DataProvider
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator paginator instance.
      */
     public function paginate($request): object
     {
@@ -108,16 +113,15 @@ class DataProvider
 
         $source = $this->prepare($params);
 
-        $pagination = (new Pagination($this->config['pagination']))
-            ->fill($params);
-
-        return $source->paginate($pagination->perPage, ['*'], $pagination->getPageFullKeyword(), $pagination->page)
+        return $this->getPagination()
+            ->fill($params)
+            ->paginate($source)
             ->appends($params);
     }
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
-     * @return \Illuminate\Contracts\Pagination\Paginator
+     * @return \Illuminate\Contracts\Pagination\Paginator paginator instance.
      */
     public function simplePaginate($request): object
     {
@@ -125,16 +129,15 @@ class DataProvider
 
         $source = $this->prepare($params);
 
-        $pagination = (new Pagination($this->config['pagination']))
-            ->fill($params);
-
-        return $source->simplePaginate($pagination->perPage, ['*'], $pagination->getPageFullKeyword(), $pagination->page)
+        return $this->getPagination()
+            ->fill($params)
+            ->simplePaginate($source)
             ->appends($params);
     }
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
-     * @return \Illuminate\Contracts\Pagination\CursorPaginator
+     * @return \Illuminate\Contracts\Pagination\CursorPaginator paginator instance.
      */
     public function cursorPaginate($request): object
     {
@@ -142,10 +145,9 @@ class DataProvider
 
         $source = $this->prepare($params);
 
-        $pagination = (new Pagination($this->config['pagination']))
-            ->fill($params);
-
-        return $source->cursorPaginate($pagination->perPage, ['*'], $pagination->getCursorFullKeyword(), $pagination->cursor)
+        return $this->getPagination()
+            ->fill($params)
+            ->cursorPaginate($source)
             ->appends($params);
     }
 
@@ -163,6 +165,10 @@ class DataProvider
 
     public function getSort(): ?Sort
     {
+        if ($this->sort === null) {
+            $this->sort = $this->makeSort();
+        }
+
         return $this->sort;
     }
 
@@ -179,6 +185,32 @@ class DataProvider
         return $sort;
     }
 
+    public function setPagination(Pagination $pagination): self
+    {
+        $this->pagination = $pagination;
+
+        return $this;
+    }
+
+    public function getPagination(): Pagination
+    {
+        if ($this->pagination === null) {
+            $this->pagination = $this->makePagination();
+        }
+
+        return $this->pagination;
+    }
+
+    /**
+     * Creates default pagination instance.
+     *
+     * @return \Illuminatech\DataProvider\Pagination
+     */
+    protected function makePagination(): Pagination
+    {
+        return new Pagination($this->config['pagination']);
+    }
+
     /**
      * @return \Illuminatech\DataProvider\FilterContract[]
      */
@@ -191,7 +223,7 @@ class DataProvider
      * @param \Illuminatech\DataProvider\FilterContract[]|array $filters
      * @return static self reference.
      */
-    public function setFilters($filters): self
+    public function setFilters(iterable $filters): self
     {
         $this->filters = $this->normalizeFilters($filters);
 
@@ -238,5 +270,26 @@ class DataProvider
         }
 
         return $filters;
+    }
+
+    // Fluent interface :
+
+    public function filters(iterable $filters): self
+    {
+        return $this->setFilters($filters);
+    }
+
+    public function sortFields(iterable $fields): self
+    {
+        $this->getSort()->setAttributes($fields);
+
+        return $this;
+    }
+
+    public function defaultSort($defaultSort): self
+    {
+        $this->getSort()->defaultOrder = $defaultSort;
+
+        return $this;
     }
 }
