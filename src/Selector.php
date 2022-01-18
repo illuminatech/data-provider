@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Fields\Field;
 use Illuminatech\DataProvider\Fields\FieldCallback;
+use Illuminatech\DataProvider\Includes\IncludeRelation;
 
 /**
  * Selector
@@ -32,10 +33,13 @@ class Selector
     public $sourceSelfName = false;
 
     /**
-     * @var array|\Illuminatech\DataProvider\FieldContract[]
+     * @var array|\Illuminatech\DataProvider\FieldContract[] list of allowed fields.
      */
     private $fields = [];
 
+    /**
+     * @var array|\Illuminatech\DataProvider\IncludeContract[] list of allowed includes.
+     */
     private $includes = [];
 
     public function __construct(array $config = [])
@@ -95,8 +99,10 @@ class Selector
         return $fields;
     }
 
-    public function setIncludes(): self
+    public function setIncludes(iterable $includes): self
     {
+        $this->includes = $this->normalizeIncludes($includes);
+
         return $this;
     }
 
@@ -105,12 +111,70 @@ class Selector
         return $this->includes;
     }
 
+    public function addInclude(string $name, IncludeContract $include): self
+    {
+        $this->includes[$name] = $include;
+
+        return $this;
+    }
+
+    protected function normalizeIncludes(iterable $rawIncludes, string $namePrefix = ''): array
+    {
+        $includes = [];
+        foreach ($rawIncludes as $name => $rawInclude) {
+            if ($rawInclude instanceof IncludeContract) {
+                $includes[$namePrefix . $name] = $rawInclude;
+                continue;
+            }
+
+            if (is_int($name) && is_string($rawInclude)) {
+                $includes[$namePrefix . $rawInclude] = new IncludeRelation($namePrefix . $rawInclude);
+                continue;
+            }
+
+            if (is_string($name) && is_string($rawInclude)) {
+                $includes[$namePrefix . $name] = new IncludeRelation($namePrefix . $rawInclude);
+                continue;
+            }
+
+            if (is_string($name) && is_iterable($rawInclude)) {
+                $includes = array_merge(
+                    $includes,
+                    $this->normalizeIncludes($rawInclude, $namePrefix . $name . '.')
+                );
+                continue;
+            }
+
+            if (is_string($name) && is_callable($rawInclude)) {
+                $includes[$namePrefix . $name] = new IncludeRelation($name, $rawInclude);
+                continue;
+            }
+
+            throw new \InvalidArgumentException('Unsupported include specification: ' . gettype($name) . ' => ' . is_object($rawInclude) ? get_class($rawInclude) : gettype($rawInclude));
+        }
+
+        return $includes;
+    }
+
     /**
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
      * @param array $params request parameters.
      * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder adjusted data source.
      */
     public function apply(object $source, $params): object
+    {
+        $source = $this->applyFields($source, $params);
+        $source = $this->applyIncludes($source, $params);
+
+        return $source;
+    }
+
+    /**
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
+     * @param array $params request parameters.
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder adjusted data source.
+     */
+    protected function applyFields(object $source, $params): object
     {
         if (isset($params[$this->fieldsKeyword])) {
             if (is_string($params[$this->fieldsKeyword])) {
@@ -190,6 +254,35 @@ class Selector
             $source->with([$relationName => function ($query) use ($relationFields, $value, $keywordPath) {
                 return $this->applyFieldsRecursive($query, $relationFields, $value, $keywordPath);
             }]);
+        }
+
+        return $source;
+    }
+
+    /**
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
+     * @param array $params request parameters.
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder adjusted data source.
+     */
+    protected function applyIncludes(object $source, $params): object
+    {
+        if (isset($params[$this->includeKeyword])) {
+            if (is_string($params[$this->includeKeyword])) {
+                $includeParams = array_map('trim', explode(',', $params[$this->includeKeyword]));
+            } elseif (!is_iterable($params[$this->includeKeyword])) {
+                throw new InvalidQueryException('"' . $this->includeKeyword . '" should be a list of includes.');
+            } else {
+                $includeParams = $params[$this->includeKeyword];
+            }
+
+            $includes = $this->getIncludes();
+            foreach ($includeParams as $includeName) {
+                if (!isset($includes[$includeName])) {
+                    throw new InvalidQueryException('Unsupported include "' . $includeName . '" in "' . $this->includeKeyword . '".');
+                }
+
+                $source = $includes[$includeName]->apply($source, $includeName);
+            }
         }
 
         return $source;

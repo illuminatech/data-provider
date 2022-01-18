@@ -4,6 +4,7 @@ namespace Illuminatech\DataProvider\Test;
 
 use Illuminatech\DataProvider\Fields\Field;
 use Illuminatech\DataProvider\Fields\FieldCallback;
+use Illuminatech\DataProvider\Includes\IncludeRelation;
 use Illuminatech\DataProvider\Selector;
 use Illuminatech\DataProvider\Test\Support\Category;
 use Illuminatech\DataProvider\Test\Support\Item;
@@ -123,5 +124,50 @@ class SelectorTest extends TestCase
 
         $this->assertFalse(empty($model->id));
         $this->assertTrue(empty($model->name));
+    }
+
+    public function testNormalizeIncludes()
+    {
+        $selector = (new Selector())
+            ->setIncludes([
+                'item',
+                'alias' => 'relation',
+                'callback' => function ($source) {
+                    return $source;
+                },
+                'nested' => [
+                    'item',
+                ],
+                'dot.name',
+            ]);
+
+        $includes = $selector->getIncludes();
+
+        $this->assertTrue($includes['item'] instanceof IncludeRelation);
+        $this->assertTrue($includes['alias'] instanceof IncludeRelation);
+        $this->assertTrue($includes['callback'] instanceof IncludeRelation);
+        $this->assertTrue($includes['nested.item'] instanceof IncludeRelation);
+        $this->assertTrue($includes['dot.name'] instanceof IncludeRelation);
+    }
+
+    /**
+     * @depends testNormalizeIncludes
+     */
+    public function testIncludeRelation()
+    {
+        $selector = (new Selector())
+            ->setIncludes([
+                'category',
+            ]);
+
+        $source = $selector->apply(Item::query(), [
+            'include' => [
+                'category',
+            ],
+        ]);
+
+        $model = $source->first();
+
+        $this->assertTrue($model->relationLoaded('category'));
     }
 }
