@@ -125,7 +125,7 @@ class Selector
             if (is_string($this->sourceSelfName)) {
                 $sourceSelfName = $this->sourceSelfName;
             } elseif ($this->sourceSelfName === true) {
-                $sourceSelfName = $this->detectSelfName($source);
+                $sourceSelfName = $this->detectSourceSelfName($source);
             }
 
             $fields = $this->getFields();
@@ -142,12 +142,12 @@ class Selector
                         throw new InvalidQueryException('Unsupported include "' . $sourceSelfName . '" in "' . $this->fieldsKeyword . '".');
                     }
 
-                    $source = $this->applyFieldsRecursive($source, $fields[$sourceSelfName], $fieldParams[$sourceSelfName]);
+                    $source = $this->applyFieldsRecursive($source, $fields[$sourceSelfName], $fieldParams[$sourceSelfName], [$this->fieldsKeyword, $sourceSelfName]);
                     unset($fieldParams[$sourceSelfName]);
                 }
             }
 
-            $source = $this->applyFieldsRecursive($source, $fields, $fieldParams);
+            $source = $this->applyFieldsRecursive($source, $fields, $fieldParams, [$this->fieldsKeyword]);
         }
 
         return $source;
@@ -159,7 +159,7 @@ class Selector
      * @param string|iterable $params
      * @return object
      */
-    protected function applyFieldsRecursive(object $source, array $fields, $params): object
+    protected function applyFieldsRecursive(object $source, array $fields, $params, array $keywordPath): object
     {
         if (!is_iterable($params)) {
             $params = array_map('trim', explode(',', $params));
@@ -170,7 +170,7 @@ class Selector
                 $fieldName = $value;
 
                 if (!isset($fields[$fieldName])) {
-                    throw new InvalidQueryException('Unsupported field "' . $fieldName . '" in "' . $this->fieldsKeyword . '".');
+                    throw new InvalidQueryException('Unsupported field "' . $fieldName . '" in "' . implode('->', $keywordPath) . '".');
                 }
 
                 $source = $fields[$fieldName]->apply($source, $fieldName);
@@ -180,13 +180,15 @@ class Selector
 
             $relationName = $name;
             if (!isset($fields[$relationName]) || !is_array($fields[$relationName])) {
-                throw new InvalidQueryException('Unsupported include "' . $relationName . '" in "' . $this->fieldsKeyword . '".');
+                throw new InvalidQueryException('Unsupported include "' . $relationName . '" in "' . implode('->', $keywordPath) . '".');
             }
 
             $relationFields = $fields[$relationName];
 
-            $source->with([$relationName => function ($query) use ($relationFields, $value) {
-                return $this->applyFieldsRecursive($query, $relationFields, $value);
+            $keywordPath[] = $relationName;
+
+            $source->with([$relationName => function ($query) use ($relationFields, $value, $keywordPath) {
+                return $this->applyFieldsRecursive($query, $relationFields, $value, $keywordPath);
             }]);
         }
 
@@ -195,13 +197,20 @@ class Selector
 
     /**
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
-     * @return string
+     * @return string detected name.
      */
-    protected function detectSelfName(object $source): string
+    protected function detectSourceSelfName(object $source): string
     {
         if (method_exists($source, 'getModel')) {
             $modelClassName = get_class($source->getModel());
+
             return Str::camel(basename(str_replace('\\', '/', $modelClassName)));
+        }
+
+        if (!empty($source->from) && is_string($source->from)) {
+            $parts = explode(' ', $source->from);
+
+            return array_shift($parts);
         }
 
         return 'self';
