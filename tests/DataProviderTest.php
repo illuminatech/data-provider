@@ -86,7 +86,7 @@ class DataProviderTest extends TestCase
     public function testSort()
     {
         $items = (new DataProvider(Item::class))
-            ->setSort(['id', 'name'])
+            ->sortFields(['id', 'name'])
             ->prepare(['sort' => '-id'])
             ->get();
 
@@ -110,7 +110,7 @@ class DataProviderTest extends TestCase
         ]));
 
         $items = (new DataProvider(Item::class))
-            ->setSort(['id', 'name'])
+            ->sortFields(['id', 'name'])
             ->prepare([$sortKeyword => '-id'])
             ->get();
 
@@ -223,5 +223,17 @@ class DataProviderTest extends TestCase
         ];
         $items = (new DataProvider($source))->get([]);
         $this->assertEquals(count($source), $items->count());
+    }
+
+    public function testInclude()
+    {
+        $item = (new DataProvider(Item::class))
+            ->includes(['category'])
+            ->prepare([
+                'include' => 'category',
+            ])
+            ->first();
+
+        $this->assertTrue($item->relationLoaded('category'));
     }
 }

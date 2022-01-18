@@ -38,6 +38,11 @@ class DataProvider
     protected $filters = [];
 
     /**
+     * @var \Illuminatech\DataProvider\Selector|null related selector instance.
+     */
+    protected $selector;
+
+    /**
      * @var \Illuminatech\DataProvider\Sort|null related sort instance.
      */
     protected $sort;
@@ -84,6 +89,11 @@ class DataProvider
         $source = clone $this->source;
 
         $params = $this->extractRequestParams($request);
+
+        // apply selector
+        if ($this->selector !== null) {
+            $source = $this->selector->apply($source, $params);
+        }
 
         // apply filter
         $filterKeyword = $this->config['filter']['keyword'];
@@ -149,6 +159,32 @@ class DataProvider
 
         return $this->getPagination()
             ->cursorPaginate($source, $params);
+    }
+
+    public function setSelector(Selector $selector): self
+    {
+        $this->selector = $selector;
+
+        return $this;
+    }
+
+    public function getSelector(): Selector
+    {
+        if ($this->selector === null) {
+            $this->selector = $this->makeSelector();
+        }
+
+        return $this->selector;
+    }
+
+    /**
+     * Creates default selector instance.
+     *
+     * @return \Illuminatech\DataProvider\Selector
+     */
+    protected function makeSelector(): Selector
+    {
+        return new Selector($this->config);
     }
 
     public function setSort($sort): self
@@ -289,6 +325,20 @@ class DataProvider
     public function defaultSort($defaultSort): self
     {
         $this->getSort()->defaultOrder = $defaultSort;
+
+        return $this;
+    }
+
+    public function fields(iterable $fields): self
+    {
+        $this->getSelector()->setFields($fields);
+
+        return $this;
+    }
+
+    public function includes(iterable $includes): self
+    {
+        $this->getSelector()->setIncludes($includes);
 
         return $this;
     }
