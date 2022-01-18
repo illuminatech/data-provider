@@ -7,19 +7,17 @@
 
 namespace Illuminatech\DataProvider\Filters;
 
-use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
-
-class FilterExact extends FilterRelatedRecursive
+class FilterIn extends FilterRelatedRecursive
 {
     /**
      * {@inheritdoc}
      */
     protected function applyInternal(object $source, string $target, string $name, $value): object
     {
-        if (!is_scalar($value)) {
-            throw new InvalidQueryException('Filter "' . $name . '" requires scalar value.');
+        if (is_scalar($value)) {
+            $value = array_map('trim', explode(',', $value));
         }
 
-        return $source->where($target, '=', $value);
+        return $source->whereIn($target, $value);
     }
 }
