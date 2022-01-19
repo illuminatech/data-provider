@@ -10,6 +10,22 @@ namespace Illuminatech\DataProvider\Filters;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\FilterContract;
 
+/**
+ * FilterSearch picks up the records, with at least one of listed attribute contains a requested string.
+ *
+ * Usage example:
+ *
+ * ```php
+ * DataProvider(Item::class)
+ *     ->filters([
+ *         'search' => new FilterSearch(['name', 'description']),
+ *     ]);
+ * ```
+ *
+ * @see \Illuminatech\DataProvider\Filters\FilterLike
+ *
+ * @package Illuminatech\DataProvider\Filters
+ */
 class FilterSearch implements FilterContract
 {
     /**

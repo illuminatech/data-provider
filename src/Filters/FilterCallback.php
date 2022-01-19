@@ -9,15 +9,31 @@ namespace Illuminatech\DataProvider\Filters;
 
 use Illuminatech\DataProvider\FilterContract;
 
+/**
+ * FilterCallback allows specification of the custom PHP callback for the filter application.
+ *
+ * Callback signature:
+ *
+ * ```
+ * function(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object $source, string $filterName, mixed $filterValue)
+ * ```
+ *
+ * ```php
+ * DataProvider(Item::class)
+ *     ->filters([
+ *         'custom_price_from' => new FilterCallback(function ($query, $name, $value) {
+ *              $query->where('type', '=', 'custom')
+ *                  ->andWhere('price', '>=', $value);
+ *          }),
+ *     ]);
+ * ```
+ *
+ * @package Illuminatech\DataProvider\Filters
+ */
 class FilterCallback implements FilterContract
 {
     /**
      * @var callable PHP callback, which should be executed against the data source, once filter value is passed.
-     * Callback signature:
-     *
-     * ```
-     * function(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object $source, string $filterName, mixed $filterValue)
-     * ```
      */
     public $callback;
 

@@ -7,6 +7,23 @@
 
 namespace Illuminatech\DataProvider\Filters;
 
+/**
+ * FilterIn picks up records with attribute value inside requested set.
+ *
+ * Usage example:
+ *
+ * ```php
+ * DataProvider(Item::class)
+ *     ->filters([
+ *         'categories' => new FilterIn('category_id'),
+ *     ]);
+ * ```
+ *
+ * Requested set can be specified either as comma-separated string or as array.
+ *
+ * @author Paul Klimov <klimov.paul@gmail.com>
+ * @since 1.0
+ */
 class FilterIn extends FilterRelatedRecursive
 {
     /**

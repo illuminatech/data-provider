@@ -17,17 +17,6 @@ use Illuminatech\DataProvider\Test\Support\Item;
 
 class DataProviderTest extends TestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->createSchema();
-        $this->seedDatabase();
-    }
-
     public function testNormalizeFilters()
     {
         $dataProvider = new DataProvider(Item::class);

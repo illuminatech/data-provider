@@ -38,6 +38,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
         $db->setAsGlobal();
 
         Model::clearBootedModels();
+
+        $this->createSchema();
+        $this->seedDatabase();
     }
 
     /**
@@ -87,6 +90,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
             $table->unsignedBigInteger('category_id');
             $table->string('name');
             $table->string('slug');
+            $table->softDeletes();
         });
     }
 

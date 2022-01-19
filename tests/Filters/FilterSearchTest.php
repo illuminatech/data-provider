@@ -9,17 +9,6 @@ use Illuminatech\DataProvider\Test\TestCase;
 
 class FilterSearchTest extends TestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->createSchema();
-        $this->seedDatabase();
-    }
-
     public function testApply()
     {
         $dataProvider = (new DataProvider(Item::class))->setFilters([

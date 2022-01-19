@@ -9,6 +9,16 @@ namespace Illuminatech\DataProvider\Filters;
 
 use Illuminatech\DataProvider\FilterContract;
 
+/**
+ * FilterRelatedRecursive facilitates relational queries composition.
+ *
+ * It allows specification of the attributes with dots, like 'category.name' to be executed against related entities.
+ *
+ * @see \Illuminate\Database\Eloquent\Concerns::QueriesRelationships::whereHas()
+ *
+ * @author Paul Klimov <klimov.paul@gmail.com>
+ * @since 1.0
+ */
 abstract class FilterRelatedRecursive implements FilterContract
 {
     /**

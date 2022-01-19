@@ -10,6 +10,27 @@ namespace Illuminatech\DataProvider\Filters;
 use Illuminate\Database\PostgresConnection;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 
+/**
+ * FilterLike performs string comparison using operator 'LIKE'.
+ *
+ * By default it sanitizes request value and performs search for string partial match.
+ *
+ * Usage example:
+ *
+ * ```php
+ * DataProvider(Item::class)
+ *     ->filters([
+ *         'name' => new FilterLike('name'),
+ *         'allow_user_regex' => new FilterLike('name', false),
+ *         'for_postgres' => new FilterLike('name', true, 'ilike),
+ *     ]);
+ * ```
+ *
+ * @see \Illuminatech\DataProvider\Filters\FilterSearch
+ *
+ * @author Paul Klimov <klimov.paul@gmail.com>
+ * @since 1.0
+ */
 class FilterLike extends FilterRelatedRecursive
 {
     /**

@@ -12,17 +12,6 @@ use Illuminatech\DataProvider\Test\Support\Item;
 
 class SelectorTest extends TestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->createSchema();
-        $this->seedDatabase();
-    }
-
     public function testNormalizeFields()
     {
         $selector = (new Selector())

@@ -7,34 +7,42 @@
 
 namespace Illuminatech\DataProvider\Filters;
 
-use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
-
 /**
- * FilterExact performs exact match for the attribute against requested value.
+ * FilterScope applies specified scope method passing filter value inside it.
  *
- * Usage example:
+ * Configuration example:
  *
  * ```php
  * DataProvider(Item::class)
  *     ->filters([
- *         'id' => new FilterExact('id'),
+ *         'allow_purchase' => new FilterScope('allowPurchase'),
  *     ]);
+ * ```
+ *
+ * Model example:
+ *
+ * ```php
+ * class Item extends Model
+ * {
+ *     public function scopeAllowPurchase(Builder $query, bool $allowPurchase)
+ *     {
+ *         // ...
+ *     }
+ * }
  * ```
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
  */
-class FilterExact extends FilterRelatedRecursive
+class FilterScope extends FilterRelatedRecursive
 {
     /**
      * {@inheritdoc}
      */
     protected function applyInternal(object $source, string $target, string $name, $value): object
     {
-        if (!is_scalar($value)) {
-            throw new InvalidQueryException('Filter "' . $name . '" requires scalar value.');
-        }
+        $source->{$this->target}($value);
 
-        return $source->where($target, '=', $value);
+        return $source;
     }
 }
