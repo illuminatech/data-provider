@@ -10,7 +10,7 @@ namespace Illuminatech\DataProvider;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 
 /**
- * Pagination extracts pagination parameters from the specified request.
+ * Pagination extracts pagination parameters from the specified request, applying it to the given data source.
  *
  * This class does not perform data segmentation via pages, it simply extracts and validates parameters for it.
  *
@@ -19,31 +19,70 @@ use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
  */
 class Pagination
 {
+    /**
+     * @var string|null keyword, which should group all pagination parameters in request data.
+     * If `null` no group will be used and each parameter will be picked up directly from request data by corresponding keyword.
+     */
     public $keyword;
 
     /**
-     * @var bool whether to append query string values to the paginator.
+     * @var bool whether to automatically append query string values to the paginator.
      */
     public $appends = true;
 
+    /**
+     * @var string keyword, under which page number should appear at request data.
+     */
     public $pageKeyword = 'page';
 
+    /**
+     * @var string keyword, under which page cursor value should appear at request data.
+     */
     public $cursorKeyword = 'cursor';
 
+    /**
+     * @var string keyword, under which page size should appear at request data.
+     */
     public $perPageKeyword = 'per-page';
 
+    /**
+     * @var int minimal allowed page size.
+     */
     public $perPageMin = 1;
 
+    /**
+     * @var int maximum allowed page size.
+     */
     public $perPageMax = 50;
 
+    /**
+     * @var int default page size.
+     */
     public $perPageDefault = 15;
 
+    /**
+     * @var string|null per page value detected from the request data.
+     * @see fill()
+     */
     public $perPage;
 
+    /**
+     * @var string|null page value detected from the request data.
+     * @see fill()
+     */
     public $page;
 
+    /**
+     * @var string|null cursor value detected from the request data.
+     * @see fill()
+     */
     public $cursor;
 
+    /**
+     * Constructor.
+     *
+     * @param array $config configuration.
+     */
     public function __construct(array $config = [])
     {
         $this->keyword = $config['keyword'] ?? $this->keyword;
@@ -138,6 +177,8 @@ class Pagination
     }
 
     /**
+     * Paginate given data source.
+     *
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
      * @param array $params request parameters.
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator paginator instance.
@@ -156,6 +197,8 @@ class Pagination
     }
 
     /**
+     * Paginate given data source into a simple paginator.
+     *
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
      * @param array $params request parameters.
      * @return \Illuminate\Contracts\Pagination\Paginator paginator instance.
@@ -174,6 +217,8 @@ class Pagination
     }
 
     /**
+     * Create a paginator only supporting simple next and previous links for the given data source.
+     *
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
      * @param array $params request parameters.
      * @return \Illuminate\Contracts\Pagination\CursorPaginator paginator instance.
@@ -192,6 +237,8 @@ class Pagination
     }
 
     /**
+     * Extracts selected columns from data source, so they can be passed to pagination methods avoiding their override.
+     *
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
      * @return array list of source query columns.
      */

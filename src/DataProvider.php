@@ -12,6 +12,7 @@ use Illuminate\Support\Collection;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Filters\FilterCallback;
 use Illuminatech\DataProvider\Filters\FilterExact;
+use Illuminatech\DataProvider\Filters\FilterSearch;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -35,28 +36,28 @@ class DataProvider
     /**
      * @var \Illuminatech\DataProvider\FilterContract[] list of filters indexed by request param name.
      */
-    protected $filters = [];
+    private $filters = [];
 
     /**
      * @var \Illuminatech\DataProvider\Selector|null related selector instance.
      */
-    protected $selector;
+    private $selector;
 
     /**
      * @var \Illuminatech\DataProvider\Sort|null related sort instance.
      */
-    protected $sort;
+    private $sort;
 
     /**
      * @var \Illuminatech\DataProvider\Pagination|null related pagination instance.
      */
-    protected $pagination;
+    private $pagination;
 
     /**
      * Constructor.
      *
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|array|object|string $source data source.
-     * @param array $config
+     * @param array $config configuration.
      */
     public function __construct($source, array $config = [])
     {
@@ -161,6 +162,10 @@ class DataProvider
             ->cursorPaginate($source, $params);
     }
 
+    /**
+     * @param \Illuminatech\DataProvider\Selector $selector selector instance.
+     * @return static self reference.
+     */
     public function setSelector(Selector $selector): self
     {
         $this->selector = $selector;
@@ -168,6 +173,9 @@ class DataProvider
         return $this;
     }
 
+    /**
+     * @return \Illuminatech\DataProvider\Selector selector instance.
+     */
     public function getSelector(): Selector
     {
         if ($this->selector === null) {
@@ -187,19 +195,21 @@ class DataProvider
         return new Selector($this->config);
     }
 
-    public function setSort($sort): self
+    /**
+     * @param \Illuminatech\DataProvider\Sort $sort sort instance.
+     * @return static self reference.
+     */
+    public function setSort(Sort $sort): self
     {
-        if (!$sort instanceof Sort) {
-            $sort = $this->makeSort()
-                ->setAttributes($sort);
-        }
-
         $this->sort = $sort;
 
         return $this;
     }
 
-    public function getSort(): ?Sort
+    /**
+     * @return \Illuminatech\DataProvider\Sort sort instance.
+     */
+    public function getSort(): Sort
     {
         if ($this->sort === null) {
             $this->sort = $this->makeSort();
@@ -221,6 +231,10 @@ class DataProvider
         return $sort;
     }
 
+    /**
+     * @param \Illuminatech\DataProvider\Pagination $pagination pagination instance.
+     * @return static self reference.
+     */
     public function setPagination(Pagination $pagination): self
     {
         $this->pagination = $pagination;
@@ -228,6 +242,9 @@ class DataProvider
         return $this;
     }
 
+    /**
+     * @return \Illuminatech\DataProvider\Pagination pagination instance.
+     */
     public function getPagination(): Pagination
     {
         if ($this->pagination === null) {
@@ -291,9 +308,17 @@ class DataProvider
                 continue;
             }
 
-            // @todo search filter
+            if (is_string($name) && is_string($rawFilter)) {
+                $filters[$name] = new FilterExact($rawFilter);
+                continue;
+            }
 
-            throw new \InvalidArgumentException('Unsupported filter specification: ' . gettype($name) . ' => ' . is_object($rawFilter) ? get_class($rawFilter) : gettype($rawFilter));
+            if (is_string($name) && is_array($rawFilter)) {
+                $filters[$name] = new FilterSearch($rawFilter);
+                continue;
+            }
+
+            throw new \InvalidArgumentException('Unsupported filter specification: ' . gettype($name) . ' => ' . (is_object($rawFilter) ? get_class($rawFilter) : gettype($rawFilter)));
         }
 
         return $filters;
@@ -315,14 +340,14 @@ class DataProvider
         return $this->setFilters($filters);
     }
 
-    public function sortFields(iterable $fields): self
+    public function sort(iterable $fields): self
     {
         $this->getSort()->setAttributes($fields);
 
         return $this;
     }
 
-    public function defaultSort($defaultSort): self
+    public function sortDefault($defaultSort): self
     {
         $this->getSort()->defaultOrder = $defaultSort;
 
@@ -344,6 +369,8 @@ class DataProvider
     }
 
     /**
+     * Returns all matching data from the data source.
+     *
      * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
      * @return \Illuminate\Database\Eloquent\Model[]|\Illuminate\Support\Collection|array rows.
      */

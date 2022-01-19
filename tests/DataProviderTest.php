@@ -11,6 +11,7 @@ use Illuminatech\DataProvider\DataProvider;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Filters\FilterCallback;
 use Illuminatech\DataProvider\Filters\FilterExact;
+use Illuminatech\DataProvider\Filters\FilterSearch;
 use Illuminatech\DataProvider\Sort;
 use Illuminatech\DataProvider\Test\Support\Item;
 
@@ -33,7 +34,9 @@ class DataProviderTest extends TestCase
 
         $dataProvider->setFilters([
             'id',
-            'search' => new FilterExact('name'),
+            'alias' => 'name',
+            'object' => new FilterExact('name'),
+            'search' => ['name', 'description'],
             'callback' => function ($source, $name, $value) {
                 return $source;
             },
@@ -42,8 +45,10 @@ class DataProviderTest extends TestCase
         $filters = $dataProvider->getFilters();
 
         $this->assertTrue($filters['id'] instanceof FilterExact);
-        $this->assertTrue($filters['search'] instanceof FilterExact);
+        $this->assertTrue($filters['object'] instanceof FilterExact);
         $this->assertTrue($filters['callback'] instanceof FilterCallback);
+        $this->assertTrue($filters['alias'] instanceof FilterExact);
+        $this->assertTrue($filters['search'] instanceof FilterSearch);
     }
 
     /**
@@ -70,7 +75,7 @@ class DataProviderTest extends TestCase
     {
         $dataProvider = new DataProvider(Item::class);
 
-        $dataProvider->setSort(['id', 'name']);
+        $dataProvider->sort(['id', 'name']);
 
         $sort = $dataProvider->getSort();
 
@@ -86,7 +91,7 @@ class DataProviderTest extends TestCase
     public function testSort()
     {
         $items = (new DataProvider(Item::class))
-            ->sortFields(['id', 'name'])
+            ->sort(['id', 'name'])
             ->prepare(['sort' => '-id'])
             ->get();
 
@@ -110,7 +115,7 @@ class DataProviderTest extends TestCase
         ]));
 
         $items = (new DataProvider(Item::class))
-            ->sortFields(['id', 'name'])
+            ->sort(['id', 'name'])
             ->prepare([$sortKeyword => '-id'])
             ->get();
 

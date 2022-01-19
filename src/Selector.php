@@ -111,7 +111,7 @@ class Selector
                 continue;
             }
 
-            throw new \InvalidArgumentException('Unsupported field specification: ' . gettype($name) . ' => ' . is_object($rawField) ? get_class($rawField) : gettype($rawField));
+            throw new \InvalidArgumentException('Unsupported field specification: ' . gettype($name) . ' => ' . (is_object($rawField) ? get_class($rawField) : gettype($rawField)));
         }
 
         return $fields;
@@ -173,7 +173,7 @@ class Selector
                 continue;
             }
 
-            throw new \InvalidArgumentException('Unsupported include specification: ' . gettype($name) . ' => ' . is_object($rawInclude) ? get_class($rawInclude) : gettype($rawInclude));
+            throw new \InvalidArgumentException('Unsupported include specification: ' . gettype($name) . ' => ' . (is_object($rawInclude) ? get_class($rawInclude) : gettype($rawInclude)));
         }
 
         return $includes;

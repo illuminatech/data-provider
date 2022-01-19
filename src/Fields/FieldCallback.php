@@ -20,7 +20,7 @@ class FieldCallback implements FieldContract
     /**
      * @var callable
      */
-    protected $callback;
+    public $callback;
 
     public function __construct($callback)
     {

@@ -20,7 +20,7 @@ class Field implements FieldContract
     /**
      * @var string|array name of the attribute to select from source.
      */
-    protected $attribute;
+    public $attribute;
 
     public function __construct($attribute)
     {

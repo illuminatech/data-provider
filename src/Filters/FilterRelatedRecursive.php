@@ -14,7 +14,7 @@ abstract class FilterRelatedRecursive implements FilterContract
     /**
      * @var string name of the target (attribute, scope and so on) to match filter value against.
      */
-    protected $target;
+    public $target;
 
     public function __construct(string $target)
     {

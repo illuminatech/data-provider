@@ -6,8 +6,8 @@
     <br>
 </p>
 
-This extension support for complex search DB query processing for Laravel.
-It is useful for REST API composition.
+This extension allows building of the complex search queries based on the request in Laravel.
+In particular, it is useful for REST API composition.
 
 For license information check the [LICENSE](LICENSE.md)-file.
 
@@ -33,10 +33,105 @@ or add
 "illuminatech/data-provider": "*"
 ```
 
-to the require section of your composer.json.
+to the "require" section of your composer.json.
+
+You can publish predefined configuration file using following console command:
+
+```
+php artisan vendor:publish --provider="Illuminatech\DataProvider\DataProviderServiceProvider" --tag=config
+```
 
 
 Usage
 -----
 
-This extension allows 
+This extension allows building of the complex search queries based on the request data. In handles filtering, sorting, pagination,
+include of extra fields or relations on demand.
+
+Usage example:
+
+```php
+<?php
+
+use App\Models\Item;
+use Illuminate\Http\Request;
+use Illuminatech\DataProvider\DataProvider;
+
+class ItemController extends Controller
+{
+    public function index(Request $request)
+    {
+        $items = (new DataProvider(Item::class))
+            ->filters([
+                'id',
+                'status',
+                'search' => ['name', 'description'],
+            ])
+            ->sort(['id', 'name', 'status', 'created_at'])
+            ->paginate($request);
+            
+        // ...
+    }
+}
+```
+
+This example will respond to the following request:
+
+```
+GET http://example.com/items?filter[status]=active&filter[search]=foo&sort=-id&page=2&per-page=20
+```
+
+Same example with the plain database query usage:
+
+```php
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminatech\DataProvider\DataProvider;
+
+class ItemController extends Controller
+{
+    public function index(Request $request)
+    {
+        $items = (new DataProvider(DB::table('items')))
+            ->filters([
+                'id',
+                'status',
+                'search' => ['name', 'description'],
+            ])
+            ->sort(['id', 'name', 'status', 'created_at'])
+            ->paginate($request);
+            
+        // ...
+    }
+}
+```
+
+
+### Filtering
+
+
+### Sorting
+
+
+### Pagination
+
+
+### Fields
+
+
+### Includes
+
+
+### JSON API Specification Support
+
+This extension is compatible with [JSON API Specification](https://jsonapi.org/) but only with a proper configuration.
+Configuration example:
+
+```php
+<?php
+// file 'config/data_provider.php'
+
+return [];
+```

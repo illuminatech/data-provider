@@ -22,15 +22,17 @@ class FieldRelationAggregate implements FieldContract
     /**
      * @var string name of the relation to be counted.
      */
-    private $relation;
+    public $relation;
+
     /**
      * @var string
      */
-    private $attribute;
+    public $attribute;
+
     /**
      * @var string
      */
-    private $function;
+    public $function;
 
     public function __construct(string $relation, string $attribute, string $function)
     {
