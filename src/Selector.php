@@ -11,18 +11,25 @@ use Illuminate\Support\Str;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Fields\Field;
 use Illuminatech\DataProvider\Fields\FieldCallback;
+use Illuminatech\DataProvider\Includes\IncludeCallback;
 use Illuminatech\DataProvider\Includes\IncludeRelation;
 
 /**
- * Selector
+ * Selector handles extra fields and relation selection according to the given request parameters.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
  */
 class Selector
 {
+    /**
+     * @var string keyword, under which fields specification should appear at requests params.
+     */
     public $fieldsKeyword = 'fields';
 
+    /**
+     * @var string keyword, under which includes specification should appear at requests params.
+     */
     public $includeKeyword = 'include';
 
     /**
@@ -49,6 +56,10 @@ class Selector
         $this->sourceSelfName = $config['fields']['source_self_name'] ?? $this->sourceSelfName;
     }
 
+    /**
+     * @param iterable $fields fields specification.
+     * @return static self reference.
+     */
     public function setFields(iterable $fields): self
     {
         $this->fields = $this->normalizeFields($fields);
@@ -56,11 +67,18 @@ class Selector
         return $this;
     }
 
+    /**
+     * @return array|\Illuminatech\DataProvider\FieldContract[] fields list, indexed by name.
+     */
     public function getFields(): array
     {
         return $this->fields;
     }
 
+    /**
+     * @param iterable $rawFields raw fields specification.
+     * @return array|\Illuminatech\DataProvider\FieldContract[] normalized fields list, indexed by name.
+     */
     protected function normalizeFields(iterable $rawFields): array
     {
         $fields = [];
@@ -99,6 +117,10 @@ class Selector
         return $fields;
     }
 
+    /**
+     * @param iterable $includes includes specification.
+     * @return static self reference.
+     */
     public function setIncludes(iterable $includes): self
     {
         $this->includes = $this->normalizeIncludes($includes);
@@ -106,18 +128,19 @@ class Selector
         return $this;
     }
 
+    /**
+     * @return array|\Illuminatech\DataProvider\IncludeContract[] normalized includes indexed by name.
+     */
     public function getIncludes(): array
     {
         return $this->includes;
     }
 
-    public function addInclude(string $name, IncludeContract $include): self
-    {
-        $this->includes[$name] = $include;
-
-        return $this;
-    }
-
+    /**
+     * @param iterable $rawIncludes raw includes specification.
+     * @param string $namePrefix include name prefix (e.g. relations chain).
+     * @return array|\Illuminatech\DataProvider\IncludeContract[] normalized includes indexed by name.
+     */
     protected function normalizeIncludes(iterable $rawIncludes, string $namePrefix = ''): array
     {
         $includes = [];
@@ -145,8 +168,8 @@ class Selector
                 continue;
             }
 
-            if (is_string($name) && is_callable($rawInclude)) {
-                $includes[$namePrefix . $name] = new IncludeRelation($name, $rawInclude);
+            if (is_string($name) && $rawInclude instanceof \Closure) {
+                $includes[$namePrefix . $name] = new IncludeCallback($rawInclude);
                 continue;
             }
 
@@ -157,6 +180,8 @@ class Selector
     }
 
     /**
+     * Applies this selector to the given source according to the specified request params.
+     *
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
      * @param array $params request parameters.
      * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder adjusted data source.
@@ -221,7 +246,7 @@ class Selector
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
      * @param array $fields
      * @param string|iterable $params
-     * @return object
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder adjusted data source.
      */
     protected function applyFieldsRecursive(object $source, array $fields, $params, array $keywordPath): object
     {
@@ -289,6 +314,8 @@ class Selector
     }
 
     /**
+     * Detects source self name for the fields specification.
+     *
      * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
      * @return string detected name.
      */

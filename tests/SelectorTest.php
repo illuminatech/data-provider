@@ -4,6 +4,7 @@ namespace Illuminatech\DataProvider\Test;
 
 use Illuminatech\DataProvider\Fields\Field;
 use Illuminatech\DataProvider\Fields\FieldCallback;
+use Illuminatech\DataProvider\Includes\IncludeCallback;
 use Illuminatech\DataProvider\Includes\IncludeRelation;
 use Illuminatech\DataProvider\Selector;
 use Illuminatech\DataProvider\Test\Support\Category;
@@ -145,7 +146,7 @@ class SelectorTest extends TestCase
 
         $this->assertTrue($includes['item'] instanceof IncludeRelation);
         $this->assertTrue($includes['alias'] instanceof IncludeRelation);
-        $this->assertTrue($includes['callback'] instanceof IncludeRelation);
+        $this->assertTrue($includes['callback'] instanceof IncludeCallback);
         $this->assertTrue($includes['nested.item'] instanceof IncludeRelation);
         $this->assertTrue($includes['dot.name'] instanceof IncludeRelation);
     }
