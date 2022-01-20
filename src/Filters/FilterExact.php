@@ -17,7 +17,8 @@ use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
  * ```php
  * DataProvider(Item::class)
  *     ->filters([
- *         'id' => new FilterExact('id'),
+ *         'id', // short syntax, equals to `'id' => new FilterExact('id')`,
+ *         'title' => new FilterExact('name'),
  *     ]);
  * ```
  *

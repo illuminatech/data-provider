@@ -52,7 +52,7 @@ abstract class FilterRelatedRecursive implements FilterContract
     /**
      * Detects whether filter should be applied to related query or to the main source.
      *
-     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object $source raw data source.
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|object $source raw data source.
      * @return bool
      */
     protected function shouldApplyRecursive(object $source): bool
@@ -63,11 +63,11 @@ abstract class FilterRelatedRecursive implements FilterContract
     /**
      * Applies this filter to the given data source.
      *
-     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object $source raw data source.
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|object $source raw data source.
      * @param string $target filter target (attribute, scope and so on) name.
      * @param string $name filter attribute name.
      * @param mixed $value filter value.
-     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object adjusted data source.
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|object adjusted data source.
      */
     abstract protected function applyInternal(object $source, string $target, string $name, $value): object;
 }

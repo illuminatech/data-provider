@@ -205,18 +205,8 @@ class DataProviderTest extends TestCase
         $this->assertTrue($items instanceof Collection);
         $this->assertEquals(Item::query()->count(), $items->count());
 
-        $source = [
-            [
-                'id' => 1,
-                'name' => 'foo',
-            ],
-            [
-                'id' => 2,
-                'name' => 'bar',
-            ],
-        ];
-        $items = (new DataProvider($source))->get([]);
-        $this->assertEquals(count($source), $items->count());
+        $items = (new DataProvider($this->getConnection()->table('items')))->get([]);
+        $this->assertEquals($this->getConnection()->table('items')->count(), $items->count());
     }
 
     public function testInclude()

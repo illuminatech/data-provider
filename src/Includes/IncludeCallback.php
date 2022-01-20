@@ -10,7 +10,24 @@ namespace Illuminatech\DataProvider\Includes;
 use Illuminatech\DataProvider\IncludeContract;
 
 /**
- * IncludeCallback
+ * IncludeCallback allows specification of the custom PHP callback for the 'include' application.
+ *
+ * Callback signature:
+ *
+ * ```
+ * function(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|object $source, string $includeName)
+ * ```
+ *
+ * ```php
+ * DataProvider(Item::class)
+ *     ->includes([
+ *         'custom' => function ($query) {...}, // short syntax, equals to `'custom' => new IncludeCallback(function ($query) {...})`
+ *         'custom_join' => new IncludeCallback(function ($query) {
+ *              $query->join('categories', 'categories.id', '=', 'items.category_id')
+ *                  >addSelect('categories.name as category_name');
+ *          }),
+ *     ]);
+ * ```
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0

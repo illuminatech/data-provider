@@ -8,7 +8,9 @@
 namespace Illuminatech\DataProvider;
 
 /**
- * FieldContract
+ * FieldContract defines interface, which each field should implement.
+ *
+ * @see \Illuminatech\DataProvider\DataProvider::fields()
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
@@ -18,9 +20,9 @@ interface FieldContract
     /**
      * Applies this field to the given data source.
      *
-     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object $source raw data source.
-     * @param string $name field (attribute) name.
-     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object adjusted data source.
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|object $source raw data source.
+     * @param string $name field (attribute) name, e.g. field name from request.
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|object adjusted data source.
      */
     public function apply(object $source, string $name): object;
 }

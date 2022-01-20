@@ -10,9 +10,20 @@ namespace Illuminatech\DataProvider\Fields;
 use Illuminatech\DataProvider\FieldContract;
 
 /**
- * FieldRelationAggregate
+ * FieldRelationAggregate allows selection of fields holding related entities aggregation info.
+ *
+ * Usage example:
+ *
+ * ```php
+ * DataProvider(Category::class)
+ *     ->fields([
+ *         'items_count' => new FieldRelationAggregate('items', '*', 'count'),
+ *         'items_max_price' => new FieldRelationAggregate('items', 'price', 'max'),
+ *     ]);
+ * ```
  *
  * @see \Illuminate\Database\Eloquent\Concerns\QueriesRelationships::withAggregate()
+ * @see https://laravel.com/docs/eloquent-relationships#aggregating-related-models
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
@@ -25,12 +36,12 @@ class FieldRelationAggregate implements FieldContract
     public $relation;
 
     /**
-     * @var string
+     * @var string attribute of the related entity, which value should be aggregated using {@see function}
      */
     public $attribute;
 
     /**
-     * @var string
+     * @var string name of SQL aggregation function to be used for aggregation. For example: 'count', 'avg', 'min', 'max' and so on.
      */
     public $function;
 

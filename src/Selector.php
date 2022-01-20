@@ -180,12 +180,12 @@ class Selector
     }
 
     /**
-     * Applies this selector to the given source according to the specified request params.
-     *
-     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
-     * @param array $params request parameters.
-     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder adjusted data source.
-     */
+ * Applies this selector to the given source according to the specified request params.
+ *
+ * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
+ * @param array $params request parameters.
+ * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder adjusted data source.
+ */
     public function apply(object $source, $params): object
     {
         $source = $this->applyFields($source, $params);

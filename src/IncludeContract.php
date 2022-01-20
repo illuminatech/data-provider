@@ -8,7 +8,9 @@
 namespace Illuminatech\DataProvider;
 
 /**
- * FilterContract
+ * IncludeContract defines interface, which each relationship include should implement.
+ *
+ * @see \Illuminatech\DataProvider\DataProvider::includes()
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
@@ -18,9 +20,9 @@ interface IncludeContract
     /**
      * Applies this include to the given data source.
      *
-     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object $source raw data source.
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|object $source raw data source.
      * @param string $name relation full name (path).
-     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object adjusted data source.
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|object adjusted data source.
      */
     public function apply(object $source, string $name): object;
 }

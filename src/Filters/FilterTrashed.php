@@ -7,6 +7,7 @@
 
 namespace Illuminatech\DataProvider\Filters;
 
+use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\FilterContract;
 
 /**
@@ -40,6 +41,10 @@ class FilterTrashed implements FilterContract
      */
     public function apply(object $source, string $name, $value): object
     {
+        if (!is_scalar($value)) {
+            throw new InvalidQueryException('Filter "' . $name . '" requires scalar value.');
+        }
+
         if ($value === 'with') {
             $source->withTrashed();
 

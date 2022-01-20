@@ -10,7 +10,18 @@ namespace Illuminatech\DataProvider\Fields;
 use Illuminatech\DataProvider\FieldContract;
 
 /**
- * Field
+ * Field allows selection of simple attributes (columns).
+ *
+ * Usage example:
+ *
+ * ```php
+ * DataProvider(Item::class)
+ *     ->fields([
+ *         'id', // short syntax, equals to `'id' => new Field('id')`
+ *         'title' => 'name', // short syntax, equals to `'title' => new Field('name')`
+ *         'name' => new Field('name'),
+ *     ]);
+ * ```
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
@@ -22,6 +33,11 @@ class Field implements FieldContract
      */
     public $attribute;
 
+    /**
+     * Constructor.
+     *
+     * @param string|array $attribute name of the attribute to select from source.
+     */
     public function __construct($attribute)
     {
         $this->attribute = $attribute;

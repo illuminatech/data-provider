@@ -15,12 +15,13 @@ use Illuminatech\DataProvider\FilterContract;
  * Callback signature:
  *
  * ```
- * function(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object $source, string $filterName, mixed $filterValue)
+ * function(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|object $source, string $filterName, mixed $filterValue)
  * ```
  *
  * ```php
  * DataProvider(Item::class)
  *     ->filters([
+ *         'custom' => function ($query, $name, $value) {...}, // short syntax, equals to `'custom' => new FilterCallback(function ($query, $name, $value) {...})`
  *         'custom_price_from' => new FilterCallback(function ($query, $name, $value) {
  *              $query->where('type', '=', 'custom')
  *                  ->andWhere('price', '>=', $value);

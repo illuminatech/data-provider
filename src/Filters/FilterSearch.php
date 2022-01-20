@@ -18,7 +18,8 @@ use Illuminatech\DataProvider\FilterContract;
  * ```php
  * DataProvider(Item::class)
  *     ->filters([
- *         'search' => new FilterSearch(['name', 'description']),
+ *         'search' => ['name', 'description'], // short syntax, equals to `'search' => new FilterSearch(['name', 'description'])`
+ *         'text_search' => new FilterSearch(['name', 'description']),
  *     ]);
  * ```
  *

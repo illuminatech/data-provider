@@ -13,6 +13,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 /**
  * InvalidQueryException indicates error during request processing.
  *
+ * @see https://laravel.com/docs/errors#rendering-exceptions
+ *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
  */

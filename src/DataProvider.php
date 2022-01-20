@@ -56,7 +56,7 @@ class DataProvider
     /**
      * Constructor.
      *
-     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|array|object|string $source data source.
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|object|string $source data source.
      * @param array $config configuration.
      */
     public function __construct($source, array $config = [])
@@ -65,8 +65,6 @@ class DataProvider
             $this->source = $source;
         } elseif (is_string($source)) {
             $this->source = $source::query();
-        } elseif (is_array($source)) {
-            $this->source = new Collection($source);
         } else {
             throw new \InvalidArgumentException('Unsupported source type: ' . gettype($source));
         }
@@ -83,7 +81,7 @@ class DataProvider
      * This method is immutable, leaving original {@see source} object intact.
      *
      * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
-     * @return \Illuminate\Database\Query\Builder|\Illuminate\Support\Collection|object adjusted data source.
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|object adjusted data source.
      */
     public function prepare($request): object
     {
@@ -118,8 +116,10 @@ class DataProvider
     }
 
     /**
+     * Paginate results.
+     *
      * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator paginator instance.
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Model[] paginator instance.
      */
     public function paginate($request): object
     {
@@ -132,8 +132,10 @@ class DataProvider
     }
 
     /**
+     * Paginate results into a simple paginator.
+     *
      * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
-     * @return \Illuminate\Contracts\Pagination\Paginator paginator instance.
+     * @return \Illuminate\Contracts\Pagination\Paginator|\Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Model[] paginator instance.
      */
     public function simplePaginate($request): object
     {
@@ -146,8 +148,10 @@ class DataProvider
     }
 
     /**
+     * Create a paginator only supporting simple next and previous links for the results.
+     *
      * @param \Symfony\Component\HttpFoundation\Request|iterable $request request instance or query data.
-     * @return \Illuminate\Contracts\Pagination\CursorPaginator paginator instance.
+     * @return \Illuminate\Contracts\Pagination\CursorPaginator|\Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Model[] paginator instance.
      */
     public function cursorPaginate($request): object
     {
@@ -370,12 +374,7 @@ class DataProvider
      */
     public function get($request)
     {
-        $source = $this->prepare($request);
-
-        if ($source instanceof Collection) {
-            return $source;
-        }
-
-        return $source->get();
+        return $this->prepare($request)
+            ->get();
     }
 }
