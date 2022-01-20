@@ -8,7 +8,6 @@
 namespace Illuminatech\DataProvider;
 
 use Illuminate\Container\Container;
-use Illuminate\Support\Collection;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Filters\FilterCallback;
 use Illuminatech\DataProvider\Filters\FilterExact;
@@ -16,7 +15,59 @@ use Illuminatech\DataProvider\Filters\FilterSearch;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * DataProvider
+ * DataProvider allows building of the complex search queries based on the request data.
+ *
+ * In handles filtering, sorting, pagination, include of extra fields or relations on demand.
+ *
+ * Eloquent usage example:
+ *
+ * ```php
+ * use App\Models\Item;
+ * use Illuminate\Http\Request;
+ * use Illuminatech\DataProvider\DataProvider;
+ *
+ * class ItemController extends Controller
+ * {
+ *     public function index(Request $request)
+ *     {
+ *         $items = (new DataProvider(Item::class))
+ *             ->filters([
+ *                 'id',
+ *                 'status',
+ *                 'search' => ['name', 'description'],
+ *             ])
+ *             ->sort(['id', 'name', 'status', 'created_at'])
+ *             ->paginate($request);
+ *
+ *         // ...
+ *     }
+ * }
+ * ```
+ *
+ * Plain database query usage example:
+ *
+ * ```php
+ * use Illuminate\Http\Request;
+ * use Illuminate\Support\Facades\DB;
+ * use Illuminatech\DataProvider\DataProvider;
+ *
+ * class ItemController extends Controller
+ * {
+ *     public function index(Request $request)
+ *     {
+ *         $items = (new DataProvider(DB::table('items')))
+ *             ->filters([
+ *                 'id',
+ *                 'status',
+ *                 'search' => ['name', 'description'],
+ *             ])
+ *             ->sort(['id', 'name', 'status', 'created_at'])
+ *             ->paginate($request);
+ *
+ *         // ...
+ *     }
+ * }
+ * ```
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
@@ -24,7 +75,7 @@ use Symfony\Component\HttpFoundation\Request;
 class DataProvider
 {
     /**
-     * @var \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|\Illuminate\Support\Collection|object data source.
+     * @var \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|object data source.
      */
     protected $source;
 
@@ -353,11 +404,49 @@ class DataProvider
 
     // Fluent interface :
 
+    /**
+     * Specifies filters for this data provider.
+     * For example:
+     *
+     * ```php
+     * [
+     *     'id',
+     *     'alias' => 'db_column',
+     *     'object' => new FilterExact('name'),
+     *     'search' => ['name', 'description'],
+     *     'callback' => function ($source, $name, $value) {
+     *         // ...
+     *     },
+     * ]
+     * ```
+     *
+     * @param iterable $filters filters declaration.
+     * @return static self reference.
+     */
     public function filters(iterable $filters): self
     {
         return $this->setFilters($filters);
     }
 
+    /**
+     * Specifies sort fields for this data provider.
+     * For example:
+     *
+     * ```php
+     * [
+     *     'id',
+     *     'name' => [
+     *         'asc' => ['first_name' => 'asc', 'last_name' => 'asc'],
+     *         'desc' => ['first_name' => 'desc', 'last_name' => desc'],
+     *     ],
+     * ]
+     * ```
+     *
+     * @see \Illuminatech\DataProvider\Sort::$attributes
+     *
+     * @param iterable $fields sort fields declaration.
+     * @return static self reference.
+     */
     public function sort(iterable $fields): self
     {
         $this->getSort()->setAttributes($fields);
@@ -365,6 +454,15 @@ class DataProvider
         return $this;
     }
 
+    /**
+     * Specifies default sort to be applied for this data provider.
+     * For example: `'-id'`, `['name', '-id']` and so on.
+     *
+     * @see \Illuminatech\DataProvider\Sort::$defaultSort
+     *
+     * @param string|array $defaultSort default sort.
+     * @return static self reference.
+     */
     public function sortDefault($defaultSort): self
     {
         $this->getSort()->defaultSort = $defaultSort;
@@ -372,6 +470,34 @@ class DataProvider
         return $this;
     }
 
+    /**
+     * Specifies selectable fields for this data provider.
+     * For example:
+     *
+     * ```php
+     * [
+     *     'id',
+     *     'alias' => 'db_column',
+     *     'items_count' => new FieldRelationAggregate('items', '*', 'count'),
+     *     'callback' => function ($source) {
+     *         // ...
+     *     },
+     *     'related_group' => [
+     *         'id',
+     *         'name',
+     *         'related_category' => [
+     *             'id',
+     *             'name',
+     *         ],
+     *     ],
+     * ]
+     * ```
+     *
+     * @see \Illuminatech\DataProvider\Selector::setFields()
+     *
+     * @param iterable $fields fields specification.
+     * @return static self reference.
+     */
     public function fields(iterable $fields): self
     {
         $this->getSelector()->setFields($fields);
@@ -379,6 +505,27 @@ class DataProvider
         return $this;
     }
 
+    /**
+     * Specifies of relations, allowed to be included, for this data provider.
+     * For example:
+     *
+     * ```php
+     * [
+     *     'category',
+     *     'alias' => 'relation_name',
+     *     'object' => new IncludeRelation('group', function ($groupQuery) {...}),
+     *     'callback' => function ($source) {
+     *         // ...
+     *     },
+     *     'nested.relation',
+     * ]
+     * ```
+     *
+     * @see \Illuminatech\DataProvider\Selector::setIncludes()
+     *
+     * @param iterable $includes includes specification.
+     * @return static self reference.
+     */
     public function includes(iterable $includes): self
     {
         $this->getSelector()->setIncludes($includes);

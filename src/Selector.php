@@ -57,6 +57,29 @@ class Selector
     }
 
     /**
+     * Sets the list of attributes that are allowed to be selected.
+     *
+     * For example:
+     *
+     * ```php
+     * [
+     *     'id',
+     *     'alias' => 'db_column',
+     *     'items_count' => new FieldRelationAggregate('items', '*', 'count'),
+     *     'callback' => function ($source) {
+     *         return $source;
+     *     },
+     *     'related_group' => [
+     *         'id',
+     *         'name',
+     *         'related_category' => [
+     *             'id',
+     *             'name',
+     *         ],
+     *     ],
+     * ]
+     * ```
+     *
      * @param iterable $fields fields specification.
      * @return static self reference.
      */
@@ -118,6 +141,22 @@ class Selector
     }
 
     /**
+     * Sets the list of relations that are allowed to be included (eager loaded).
+     *
+     * For example:
+     *
+     * ```php
+     * [
+     *     'category',
+     *     'alias' => 'relation_name',
+     *     'object' => new IncludeRelation('group', function ($groupQuery) {...}),
+     *     'callback' => function ($source) {
+     *         // ...
+     *     },
+     *     'nested.relation',
+     * ]
+     * ```
+     *
      * @param iterable $includes includes specification.
      * @return static self reference.
      */
