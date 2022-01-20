@@ -4,6 +4,7 @@ namespace Illuminatech\DataProvider\Test;
 
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 use Illuminatech\DataProvider\Sort;
+use Illuminatech\DataProvider\Test\Support\Item;
 
 class SortTest extends TestCase
 {
@@ -56,6 +57,23 @@ class SortTest extends TestCase
     /**
      * @depends testDetectOrders
      */
+    public function testDefaultSort()
+    {
+        $sort = new Sort();
+
+        $sort->setAttributes([
+            'id',
+            'name',
+        ]);
+
+        $sort->defaultSort = '-name';
+
+        $this->assertSame(['name' => 'desc'], $sort->detectOrders([]));
+    }
+
+    /**
+     * @depends testDetectOrders
+     */
     public function testMultiSort()
     {
         $sort = new Sort();
@@ -89,5 +107,37 @@ class SortTest extends TestCase
         $this->expectException(InvalidQueryException::class);
 
         $sort->detectOrders('slug');
+    }
+
+    /**
+     * @depends testDetectOrders
+     */
+    public function testApplyEloquent()
+    {
+        $sort = new Sort();
+
+        $sort->setAttributes([
+            'id',
+        ]);
+
+        $this->assertEquals(1, $sort->apply(Item::query(), ['sort' => 'id'])->first()->id);
+        $this->assertEquals(20, $sort->apply(Item::query(), ['sort' => '-id'])->first()->id);
+    }
+
+    /**
+     * @depends testDetectOrders
+     */
+    public function testApplyRawDb()
+    {
+        $db = $this->getConnection();
+
+        $sort = new Sort();
+
+        $sort->setAttributes([
+            'id',
+        ]);
+
+        $this->assertEquals(1, $sort->apply($db->table('items'), ['sort' => 'id'])->first()->id);
+        $this->assertEquals(20, $sort->apply($db->table('items'), ['sort' => '-id'])->first()->id);
     }
 }

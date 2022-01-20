@@ -110,11 +110,8 @@ class DataProvider
         }
 
         // apply sort
-        $sortKeyword = $this->config['sort']['keyword'];
         if ($this->sort !== null) {
-            foreach ($this->sort->detectOrders($params[$sortKeyword] ?? null) as $column => $direction) {
-                $source->orderBy($column, $direction);
-            }
+            $this->sort->apply($source, $params);
         }
 
         return $source;
@@ -225,10 +222,7 @@ class DataProvider
      */
     protected function makeSort(): Sort
     {
-        $sort = new Sort();
-        $sort->enableMultiSort = $this->config['sort']['enable_multisort'];
-
-        return $sort;
+        return new Sort($this->config['sort']);
     }
 
     /**
@@ -349,7 +343,7 @@ class DataProvider
 
     public function sortDefault($defaultSort): self
     {
-        $this->getSort()->defaultOrder = $defaultSort;
+        $this->getSort()->defaultSort = $defaultSort;
 
         return $this;
     }

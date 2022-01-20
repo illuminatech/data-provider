@@ -10,7 +10,7 @@ namespace Illuminatech\DataProvider;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 
 /**
- * Sort
+ * Sort handles ordering of the data source according to the specified request parameters.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
@@ -18,19 +18,15 @@ use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
 class Sort
 {
     /**
-     * @var array the order that should be used when the processed request does not specify any order.
-     * The array keys are attribute names and the array values are the corresponding sort directions. For example:
-     *
-     * ```php
-     * [
-     *     'name' => 'asc',
-     *     'created_at' => 'desc',
-     * ]
-     * ```
-     *
-     * @see attributeOrders
+     * @var string keyword, which should be used to get sort orders from the request data.
      */
-    public $defaultOrder = [];
+    public $keyword = 'sort';
+
+    /**
+     * @var array|string the order that should be used when the processed request does not specify any order.
+     * Format should match the one passed from request, for example: '-id'.
+     */
+    public $defaultSort = [];
 
     /**
      * @var bool whether the sorting can be applied to multiple attributes simultaneously.
@@ -44,12 +40,57 @@ class Sort
     public $separator = ',';
 
     /**
-     * @var array
+     * @var array list of attributes that are allowed to be sorted. Its syntax can be
+     * described using the following example:
+     *
+     * ```php
+     * [
+     *     'id',
+     *     'name' => [
+     *         'asc' => ['first_name' => 'asc', 'last_name' => 'asc'],
+     *         'desc' => ['first_name' => 'desc', 'last_name' => desc'],
+     *     ],
+     * ]
+     * ```
+     *
+     * In the above, the `id` attribute is a simple attribute which is equivalent to the following:
+     *
+     * ```php
+     * 'id' => [
+     *     'asc' => ['id' => 'asc'],
+     *     'desc' => ['id' => 'desc'],
+     * ]
+     * ```
      */
     private $attributes = [];
 
     /**
-     * @return array
+     * Constructor.
+     *
+     * @param array $config configuration.
+     */
+    public function __construct(array $config = [])
+    {
+        $this->keyword = $config['keyword'] ?? $this->keyword;
+        $this->enableMultiSort = $config['enable_multisort'] ?? $this->enableMultiSort;
+        $this->separator = $config['separator'] ?? $this->separator;
+    }
+
+    /**
+     * Sets the list of attributes that are allowed to be sorted.
+     * For example:
+     *
+     * ```php
+     * [
+     *     'id',
+     *     'name' => [
+     *         'asc' => ['first_name' => 'asc', 'last_name' => 'asc'],
+     *         'desc' => ['first_name' => 'desc', 'last_name' => desc'],
+     *     ],
+     * ]
+     * ```
+     *
+     * @return array order attributes.
      */
     public function getAttributes(): array
     {
@@ -57,7 +98,7 @@ class Sort
     }
 
     /**
-     * @param iterable $attributes
+     * @param iterable $attributes raw attributes definition.
      * @return static self reference.
      */
     public function setAttributes(iterable $attributes): self
@@ -96,6 +137,22 @@ class Sort
     }
 
     /**
+     * Applies this sort to the given source according to the specified request params.
+     *
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
+     * @param array $params request parameters.
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder adjusted data source.
+     */
+    public function apply(object $source, $params): object
+    {
+        foreach ($this->detectOrders($params[$this->keyword] ?? null) as $column => $direction) {
+            $source->orderBy($column, $direction);
+        }
+
+        return $source;
+    }
+
+    /**
      * Returns the requested sort information.
      *
      * @param array|string $rawSort requested raw sort value.
@@ -106,7 +163,7 @@ class Sort
         $orders = [];
 
         if (empty($rawSort)) {
-            return $this->defaultOrder;
+            $rawSort = $this->defaultSort;
         }
 
         $sorts = $this->parseSortParam($rawSort);
@@ -127,7 +184,7 @@ class Sort
         }
 
         if (empty($orders)) {
-            throw new InvalidQueryException('Sort by '.implode($this->separator, $sorts).' is not supported.');
+            throw new InvalidQueryException('Sort by ' . implode($this->separator, $sorts) . ' is not supported.');
         }
 
         return $orders;
