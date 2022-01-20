@@ -48,7 +48,7 @@ class Sort
      *     'id',
      *     'name' => [
      *         'asc' => ['first_name' => 'asc', 'last_name' => 'asc'],
-     *         'desc' => ['first_name' => 'desc', 'last_name' => desc'],
+     *         'desc' => ['first_name' => 'desc', 'last_name' => 'desc'],
      *     ],
      * ]
      * ```

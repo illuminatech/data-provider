@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * DataProvider allows building of the complex search queries based on the request data.
  *
- * In handles filtering, sorting, pagination, include of extra fields or relations on demand.
+ * It handles filtering, sorting, pagination, include of extra fields or relations on demand.
  *
  * Eloquent usage example:
  *
@@ -437,7 +437,7 @@ class DataProvider
      *     'id',
      *     'name' => [
      *         'asc' => ['first_name' => 'asc', 'last_name' => 'asc'],
-     *         'desc' => ['first_name' => 'desc', 'last_name' => desc'],
+     *         'desc' => ['first_name' => 'desc', 'last_name' => 'desc'],
      *     ],
      * ]
      * ```

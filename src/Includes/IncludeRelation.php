@@ -18,9 +18,10 @@ use Illuminatech\DataProvider\IncludeContract;
  * DataProvider(Item::class)
  *     ->includes([
  *         'category', // short syntax, equals to `'category' => new IncludeRelation('category')`,
+ *         'alias' => 'relation', // short syntax, equals to `'alias' => new IncludeRelation('relation')`,
  *         'published_comments' => new IncludeRelation('comments', function ($commentsQuery) {
  *              $commentsQuery->where('status', '=', 'published');
- *          }),
+ *         }),
  *     ]);
  * ```
  *
