@@ -114,7 +114,7 @@ Data provider defines only a few methods for the data querying:
  - `simplePaginate()` - returns all records matching request with a simple paginator
  - `cursorPaginate()` - returns all records matching request with a cursor paginator
 
-However, you can use `prepare()` method to get data source object adjusted to given request to invoke its method you need.
+However, you can use `prepare()` method to get data source object, adjusted to given request, to invoke the method you need.
 For example:
 
 ```php
@@ -353,7 +353,11 @@ For example:
 use App\Models\User;
 use Illuminatech\DataProvider\DataProvider;
 
-$dataProvider = (new DataProvider(User::class))
+$dataProvider = (new DataProvider(User::class, [
+        'sort' => [
+            'enable_multisort' => true,
+        ],
+    ]))
     ->sort([
         'id',
         'first_name',
@@ -414,7 +418,7 @@ the created paginator instance, so you do not need to invoke `Illuminate\Contrac
 
 ### Include Relations
 
-While creating an API, you may allow its client to 'expand' particular entities, including their relations to the HTTP response.
+While creating an API, you may allow its client to "expand" particular entities, including their relations to the HTTP response.
 
 Available for inclusion relations setup example:
 
@@ -511,7 +515,7 @@ in consistent way.
 
 This extension is compatible with [JSON API Specification](https://jsonapi.org/). However, the default configuration for
 the pagination mismatches it, since it provides compatibility with native Laravel pagination.
-But you can easily fix this with a proper configuration. Configuration example:
+But you can easily fix this with a proper configuration. For example:
 
 ```php
 <?php
