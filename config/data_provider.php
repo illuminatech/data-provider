@@ -1,6 +1,10 @@
 <?php
 /**
  * @see https://github.com/illuminatech/data-provider
+ * @see \Illuminatech\DataProvider\DataProvider::__construct()
+ * @see \Illuminatech\DataProvider\Selector::__construct()
+ * @see \Illuminatech\DataProvider\Sort::__construct()
+ * @see \Illuminatech\DataProvider\Pagination::__construct()
  */
 
 return [
@@ -20,7 +24,7 @@ return [
     ],
     'pagination' => [
         'keyword' => null,
-        'appends' => true, // whether to automatically append query string values to the paginator.
+        'appends' => true,
         'page' => [
             'keyword' => 'page',
         ],

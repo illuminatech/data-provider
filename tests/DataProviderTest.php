@@ -60,6 +60,27 @@ class DataProviderTest extends TestCase
         ]);
     }
 
+    /**
+     * @depends testNormalizeFilters
+     */
+    public function testFilterInGlobalParamSpace()
+    {
+        $dataProvider = (new DataProvider(Item::class, [
+            'filter' => [
+                'keyword' => null,
+            ],
+        ]))
+        ->setFilters([
+            'search' => new FilterExact('name'),
+        ]);
+
+        $query = $dataProvider->prepare(['search' => 'unexisting-name']);
+        $this->assertSame(0, $query->count());
+
+        $query = $dataProvider->prepare(['unexisting' => 'some']); // no exception here
+        $this->assertSame(Item::query()->count(), $query->count());
+    }
+
     public function testSetupSort()
     {
         $dataProvider = new DataProvider(Item::class);

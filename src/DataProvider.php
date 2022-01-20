@@ -89,27 +89,47 @@ class DataProvider
 
         $params = $this->extractRequestParams($request);
 
-        // apply selector
         if ($this->selector !== null) {
             $source = $this->selector->apply($source, $params);
         }
 
-        // apply filter
-        $filterKeyword = $this->config['filter']['keyword'];
+        $source = $this->applyFilters($source, $params);
 
-        if (isset($params[$filterKeyword])) {
-            foreach ($params[$filterKeyword] as $name => $value) {
-                if (!isset($this->filters[$name])) {
-                    throw new InvalidQueryException('Filter "' . $name . '" is not supported.');
-                }
-
-                $this->filters[$name]->apply($source, $name, $value);
-            }
-        }
-
-        // apply sort
         if ($this->sort !== null) {
             $this->sort->apply($source, $params);
+        }
+
+        return $source;
+    }
+
+    /**
+     * Applies filters to the given data source.
+     *
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $source data source.
+     * @param array $params request parameters.
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder adjusted data source.
+     */
+    protected function applyFilters(object $source, $params): object
+    {
+        $filterKeyword = $this->config['filter']['keyword'];
+
+        if ($filterKeyword === null) {
+            $allowUndeclaredFilter = true;
+            $filterParams = $params;
+        } else {
+            $allowUndeclaredFilter = false;
+            $filterParams = $params[$filterKeyword] ?? [];
+        }
+
+        foreach ($filterParams as $name => $value) {
+            if (!isset($this->filters[$name])) {
+                if (!$allowUndeclaredFilter) {
+                    throw new InvalidQueryException('Filter "' . $name . '" is not supported.');
+                }
+                continue;
+            }
+
+            $this->filters[$name]->apply($source, $name, $value);
         }
 
         return $source;
