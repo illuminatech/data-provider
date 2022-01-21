@@ -33,4 +33,20 @@ class FilterExactTest extends TestCase
         $this->assertCount(1, $categories);
         $this->assertTrue($categories[0]->items()->where('slug', '=', 'item-5')->exists());
     }
+
+    public function testDotForRawDb()
+    {
+        $query = $this->getConnection()->table('items')
+            ->join('categories', 'categories.id', '=', 'items.category_id')
+            ->select(['items.id', 'items.slug']);
+
+        $items = (new DataProvider($query))->setFilters([
+            'search' => new FilterExact('items.slug'),
+        ])
+            ->prepare(['filter' => ['search' => 'item-5']])
+            ->get();
+
+        $this->assertCount(1, $items);
+        $this->assertSame('item-5', $items[0]->slug);
+    }
 }

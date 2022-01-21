@@ -48,7 +48,7 @@ class FilterSearch implements FilterContract
             throw new InvalidQueryException('Filter "' . $name . '" requires scalar value.');
         }
 
-        $source->whereNested(function ($innerSource) use ($name, $value) {
+        $source->where(function ($innerSource) use ($name, $value) {
             foreach ($this->attributes as $attribute) {
                 $innerSource->orWhere(function ($src) use ($attribute, $name, $value) {
                     return (new FilterLike($attribute, true))->apply($src, $name, $value);
