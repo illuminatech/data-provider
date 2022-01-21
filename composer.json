@@ -37,6 +37,11 @@
     "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev"
+        },
+        "laravel": {
+            "providers": [
+                "Illuminatech\\DataProvider\\DataProviderServiceProvider"
+            ]
         }
     }
 }

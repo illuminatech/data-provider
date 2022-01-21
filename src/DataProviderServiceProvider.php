@@ -7,6 +7,7 @@
 
 namespace Illuminatech\DataProvider;
 
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -19,7 +20,7 @@ use Illuminate\Support\ServiceProvider;
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
  */
-class DataProviderServiceProvider extends ServiceProvider
+class DataProviderServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
      * {@inheritdoc}
@@ -41,5 +42,15 @@ class DataProviderServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/data_provider.php' => $this->app->make('path.config') . DIRECTORY_SEPARATOR . 'data_provider.php',
         ], 'config');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function provides(): array
+    {
+        return [
+            \Illuminate\Contracts\Console\Kernel::class,
+        ];
     }
 }
