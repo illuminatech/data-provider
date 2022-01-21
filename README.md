@@ -536,3 +536,77 @@ return [
     ],
 ];
 ```
+
+
+### Dedicated Data Providers
+
+You may create a custom data provider class dedicated to the specific use case. Such approach allows to organize the code
+and keep your controllers clean.
+
+This goal can be easily achieved using `Illuminatech\DataProvider\DedicatedDataProvider` as a base class. It predefines
+a set of methods named `define*`, like `defineConfig()`, `defineFilters()` and so on, which you can override, creating a
+structured custom class. Also note, that unlike other methods, `__construct()` is exempt from the usual signature compatibility
+rules when being extended. Thus you can its signature in your class as you like, defining your own dependencies.
+For example:
+
+```php
+<?php
+
+use App\Models\User;
+use Illuminatech\DataProvider\DedicatedDataProvider;
+use Illuminatech\DataProvider\Filters\FilterIn;
+
+class UserPurchasesList extends DedicatedDataProvider
+{
+    public function __construct(User $user)
+    {
+        parent::__construct($user->purchases()->with('item'));
+    }
+
+    protected function defineConfig(): array
+    {
+        return [
+            'pagination' => [
+                'per_page' => [
+                    'default' => 16,
+                ],
+            ],
+        ];
+    }
+
+    protected function defineFilters(): array
+    {
+         return [
+             'id',
+             'status' => new FilterIn('status'),
+             // ...
+         ];
+    }
+
+    protected function defineSort(): array
+    {
+        return [
+            'id',
+            'created_at',
+            // ...
+        ];
+    }
+    
+    // ...
+}
+
+// Controller code :
+
+use Illuminate\Http\Request;
+
+class PurchaseController extends Controller
+{
+    public function index(Request $request)
+    {
+        $items = (new UserPurchasesList($request->user()))
+            ->paginate($request);
+            
+        // ...
+    }
+}
+```

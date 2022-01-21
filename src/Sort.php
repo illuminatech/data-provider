@@ -171,6 +171,10 @@ class Sort
             throw new InvalidQueryException('Sort by multiple fields is not supported.');
         }
 
+        if (empty($sorts)) {
+            return [];
+        }
+
         foreach ($sorts as $attribute) {
             $descending = false;
             if (strncmp($attribute, '-', 1) === 0) {

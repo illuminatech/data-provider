@@ -68,7 +68,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function createApplication()
     {
-        $this->app = Container::getInstance();
+        $this->app = new Container();
+
+        Container::setInstance($this->app);
 
         Facade::setFacadeApplication($this->app);
     }
