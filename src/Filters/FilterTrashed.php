@@ -24,7 +24,7 @@ use Illuminatech\DataProvider\FilterContract;
  * ```php
  * DataProvider(Item::class)
  *     ->filters([
- *         new FilterTrashed,
+ *         'trashed' => new FilterTrashed,
  *         // ...
  *     ]);
  * ```
