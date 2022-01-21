@@ -247,7 +247,7 @@ class Pagination
         $columns = null;
 
         if (method_exists($source, 'getQuery')) {
-            $columns = $source->getQuery()->columns;
+            return $this->extractSourceColumns($source->getQuery());
         }
 
         if (isset($source->columns)) {

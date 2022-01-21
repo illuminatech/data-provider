@@ -142,61 +142,6 @@ class DataProviderTest extends TestCase
 
         $this->assertTrue($items instanceof LengthAwarePaginator);
         $this->assertCount(2, $items->items());
-
-        $items = (new DataProvider(Item::class))
-            ->simplePaginate([
-                'per-page' => 2,
-                'page' => 2,
-            ]);
-
-        $this->assertTrue($items instanceof Paginator);
-        $this->assertCount(2, $items->items());
-
-        if (class_exists(CursorPaginator::class)) {
-            $items = (new DataProvider(Item::class))
-                ->cursorPaginate([
-                    'per-page' => 2,
-                ]);
-
-            $this->assertTrue($items instanceof CursorPaginator);
-            $this->assertCount(2, $items->items());
-        }
-    }
-
-    /**
-     * @depends testPaginate
-     */
-    public function testPaginateFromNestedParams()
-    {
-        $items = (new DataProvider(Item::class, ['pagination' => ['keyword' => 'pagination']]))
-            ->paginate([
-                'pagination' => [
-                    'per-page' => 2,
-                    'page' => 2,
-                ],
-            ]);
-
-        $this->assertTrue($items instanceof LengthAwarePaginator);
-        $this->assertCount(2, $items->items());
-
-        $this->assertStringContainsString(urlencode('pagination[page]'), $items->nextPageUrl());
-    }
-
-    /**
-     * @depends testPaginate
-     */
-    public function testPaginatePreserveSelect()
-    {
-        $items = (new DataProvider(Item::query()->select(['id'])))
-            ->paginate([
-                'per-page' => 2,
-                'page' => 2,
-            ]);
-
-        $attributes = $items->items()[0]->getAttributes();
-
-        $this->assertCount(1, $attributes);
-        $this->assertTrue(isset($attributes['id']));
     }
 
     /**
