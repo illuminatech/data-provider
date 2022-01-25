@@ -22,7 +22,7 @@ use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
  *     ->filters([
  *         'name' => new FilterLike('name'),
  *         'allow_user_regex' => new FilterLike('name', false),
- *         'for_postgres' => new FilterLike('name', true, 'ilike),
+ *         'for_postgres' => new FilterLike('name', true, 'ilike'),
  *     ]);
  * ```
  *
