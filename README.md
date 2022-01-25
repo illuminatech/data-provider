@@ -546,7 +546,7 @@ and keep your controllers clean.
 This goal can be easily achieved using `Illuminatech\DataProvider\DedicatedDataProvider` as a base class. It predefines
 a set of methods named `define*`, like `defineConfig()`, `defineFilters()` and so on, which you can override, creating a
 structured custom class. Also note, that unlike other methods, `__construct()` is exempt from the usual signature compatibility
-rules when being extended. Thus you can its signature in your class as you like, defining your own dependencies.
+rules when being extended. Thus, you can specify its signature in your class as you like, defining your own dependencies.
 For example:
 
 ```php
