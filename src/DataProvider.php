@@ -180,6 +180,10 @@ class DataProvider
                 continue;
             }
 
+            if ($value === null) {
+                continue;
+            }
+
             $this->filters[$name]->apply($source, $name, $value);
         }
 

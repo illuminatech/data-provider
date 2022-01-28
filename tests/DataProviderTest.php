@@ -3,9 +3,7 @@
 namespace Illuminatech\DataProvider\Test;
 
 use Illuminate\Config\Repository;
-use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminatech\DataProvider\DataProvider;
 use Illuminatech\DataProvider\Exceptions\InvalidQueryException;
@@ -38,6 +36,35 @@ class DataProviderTest extends TestCase
         $this->assertTrue($filters['callback'] instanceof FilterCallback);
         $this->assertTrue($filters['alias'] instanceof FilterExact);
         $this->assertTrue($filters['search'] instanceof FilterSearch);
+    }
+
+    /**
+     * @depends testNormalizeFilters
+     */
+    public function testApplyFilter()
+    {
+        $dataProvider = (new DataProvider(Item::class))
+            ->setFilters([
+                'id' => new FilterExact('id'),
+            ]);
+
+        $items = $dataProvider->get(['filter' => ['id' => 5]]);
+        $this->assertCount(1, $items);
+        $this->assertSame(5, $items[0]->id);
+    }
+
+    /**
+     * @depends testApplyFilter
+     */
+    public function testApplyFilterNull()
+    {
+        $dataProvider = (new DataProvider(Item::class))
+            ->setFilters([
+                'id' => new FilterExact('id'),
+            ]);
+
+        $items = $dataProvider->get(['filter' => ['id' => null]]);
+        $this->assertCount(Item::query()->count(), $items);
     }
 
     /**
