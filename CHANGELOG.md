@@ -5,6 +5,7 @@ Laravel Data Provider
 -----------------------
 
 - Enh: Added support for "illuminate/support" 9.0 (klimov-paul)
+- Enh: Added method `DataProvider::isEmpty()` for empty filter value checks (klimov-paul)
 
 
 1.0.1, January 28, 2022

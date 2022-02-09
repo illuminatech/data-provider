@@ -56,7 +56,7 @@ class DataProviderTest extends TestCase
     /**
      * @depends testApplyFilter
      */
-    public function testApplyFilterNull()
+    public function testApplyFilterEmpty()
     {
         $dataProvider = (new DataProvider(Item::class))
             ->setFilters([
@@ -64,6 +64,12 @@ class DataProviderTest extends TestCase
             ]);
 
         $items = $dataProvider->get(['filter' => ['id' => null]]);
+        $this->assertCount(Item::query()->count(), $items);
+
+        $items = $dataProvider->get(['filter' => ['id' => '']]);
+        $this->assertCount(Item::query()->count(), $items);
+
+        $items = $dataProvider->get(['filter' => ['id' => []]]);
         $this->assertCount(Item::query()->count(), $items);
     }
 

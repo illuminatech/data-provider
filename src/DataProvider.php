@@ -180,7 +180,7 @@ class DataProvider
                 continue;
             }
 
-            if ($value === null) {
+            if ($this->isEmpty($value)) {
                 continue;
             }
 
@@ -236,6 +236,18 @@ class DataProvider
 
         return $this->getPagination()
             ->cursorPaginate($source, $params);
+    }
+
+    /**
+     * Checks whether the given value is empty or not.
+     * @since 1.0.2
+     *
+     * @param mixed $value value to be checked.
+     * @return bool whether the value is empty or not.
+     */
+    protected function isEmpty($value): bool
+    {
+        return $value === '' || $value === [] || $value === null || is_string($value) && trim($value) === '';
     }
 
     /**
