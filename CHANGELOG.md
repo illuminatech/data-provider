@@ -1,7 +1,7 @@
 Laravel Data Provider
 =====================
 
-1.0.2 Under Development
+1.0.2, February 9, 2022
 -----------------------
 
 - Enh: Added support for "illuminate/support" 9.0 (klimov-paul)
