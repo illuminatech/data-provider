@@ -128,6 +128,17 @@ class DataProvider
     }
 
     /**
+     * Create a new data provider instance.
+     *
+     * @param  mixed  ...$parameters
+     * @return static
+     */
+    public static function make(...$parameters): self
+    {
+        return new static(...$parameters);
+    }
+
+    /**
      * Applies given request to the {@see source}, applying filters, sort and so on to it.
      * This method is immutable, leaving original {@see source} object intact.
      *
