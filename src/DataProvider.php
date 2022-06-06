@@ -128,6 +128,19 @@ class DataProvider
     }
 
     /**
+     * Creates new data provide instance.
+     * @see __construct()
+     * @since 1.0.3
+     *
+     * @param mixed ...$args constructor arguments.
+     * @return static new data proviider instance.
+     */
+    public static function new(...$args): self
+    {
+        return new static(...$args);
+    }
+
+    /**
      * Applies given request to the {@see source}, applying filters, sort and so on to it.
      * This method is immutable, leaving original {@see source} object intact.
      *

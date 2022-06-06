@@ -21,4 +21,11 @@ class DedicatedDataProviderTest extends TestCase
         $items = $dataProvider->paginate([])->items();
         $this->assertCount(16, $items);
     }
+
+    public function testStaticNew()
+    {
+        $dataProvider = ItemList::new();
+
+        $this->assertTrue($dataProvider instanceof ItemList);
+    }
 }

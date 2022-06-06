@@ -219,4 +219,22 @@ class DataProviderTest extends TestCase
 
         $this->assertTrue($item->relationLoaded('category'));
     }
+
+    /**
+     * @depends testPaginate
+     */
+    public function testStaticNew()
+    {
+        $items = DataProvider::new(Item::class, [
+            'pagination' => [
+                'per_page' => [
+                    'default' => 2,
+                ]
+            ],
+        ])
+            ->paginate([]);
+
+        $this->assertCount(2, $items->items());
+        $this->assertTrue($items->items()[0] instanceof Item);
+    }
 }

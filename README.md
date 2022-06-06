@@ -58,7 +58,7 @@ class ItemController extends Controller
 {
     public function index(Request $request)
     {
-        $items = (new DataProvider(Item::class))
+        $items = DataProvider::new(Item::class)
             ->filters([
                 'id',
                 'status' => 'status_id',
@@ -92,7 +92,7 @@ class ItemController extends Controller
 {
     public function index(Request $request)
     {
-        $items = (new DataProvider(DB::table('items')))
+        $items = DataProvider::new(DB::table('items'))
             ->filters([
                 'id',
                 'status',
@@ -123,7 +123,7 @@ For example:
 use App\Models\Item;
 use Illuminatech\DataProvider\DataProvider;
 
-$items = (new DataProvider(Item::class))
+$items = DataProvider::new(Item::class)
     ->filters(/* ... */)
     ->prepare($request) // applies all requested filters, returns `\Illuminate\Database\Eloquent\Builder` instance
     ->chunk(100, function ($items) {
@@ -143,7 +143,7 @@ use Illuminatech\DataProvider\DataProvider;
 $query = Article::query() 
     ->with('category');
 
-$dataProvider = (new DataProvider($query))
+$dataProvider = DataProvider::new($query)
     ->filters([
         'status'
     ]);
@@ -171,28 +171,28 @@ use App\Models\Item;
 use Illuminate\Support\Facades\DB;
 use Illuminatech\DataProvider\DataProvider;
 
-$items = (new DataProvider(Item::query())) // instance of `\Illuminate\Database\Eloquent\Builder`
+$items = DataProvider::new(Item::query()) // instance of `\Illuminate\Database\Eloquent\Builder`
     ->filters(/* ... */)
     ->get();
     
-$items = (new DataProvider( // all default conditions and eager loading should be applied to data source before passing it to data provider
+$items = DataProvider::new( // all default conditions and eager loading should be applied to data source before passing it to data provider
         Item::query()
             ->with('category')
             ->where('status', 'published')
-    ))
+    )
     ->filters(/* ... */)
     ->get();
 
-$items = (new DataProvider(Item::class)) // invokes `Item::query()` automatically
+$items = DataProvider::new(Item::class) // invokes `Item::query()` automatically
     ->filters(/* ... */)
     ->get();
 
-$items = (new DataProvider(DB::table('items'))) // instance of `\Illuminate\Database\Query\Builder`
+$items = DataProvider::new(DB::table('items')) // instance of `\Illuminate\Database\Query\Builder`
     ->filters(/* ... */)
     ->get();
 
 $item = Item::query()->first();
-$purchases = (new DataProvider($item->purchases())) // instance of `\Illuminate\Database\Eloquent\Relations\HasMany`
+$purchases = DataProvider::new($item->purchases()) // instance of `\Illuminate\Database\Eloquent\Relations\HasMany`
     ->filters(/* ... */)
     ->get();
 ```
@@ -221,14 +221,14 @@ For example:
 use App\Models\Item;
 use Illuminatech\DataProvider\DataProvider;
 
-$items = (new DataProvider(Item::class, [
+$items = DataProvider::new(Item::class, [
     'pagination' => [
         'per_page' => [
             'max' => 80,
             'default' => 20,
         ],
     ],
-]))
+])
     ->filters([
         // ...
     ])
@@ -250,7 +250,7 @@ use App\Models\Item;
 use Illuminatech\DataProvider\DataProvider;
 use Illuminatech\DataProvider\Filters\FilterExact;
 
-$items = (new DataProvider(Item::class))
+$items = DataProvider::new(Item::class)
     ->filters([
         'id', // short syntax, equals to `'id' => new FilterExact('id')`,
         'status' => 'status_id', // short syntax, equals to `'status' => new FilterExact('status_id')`,
@@ -285,17 +285,17 @@ use Illuminatech\DataProvider\DataProvider;
 use Illuminatech\DataProvider\Filters\FilterExact;
 
 // Eloquent processes dot attributes via relations:
-$items = (new DataProvider(Item::class))
+$items = DataProvider::new(Item::class)
     ->filters([
         'category_name' => new FilterExact('category.name'),
     ])
     ->get(['category_name' => 'programming']); // applies $itemQuery->whereHas('category', function() {...});
 
 // Regular DB query consider dot attribute as 'table.column' specification:
-$items = (new DataProvider(
+$items = DataProvider::new(
         DB::table('items')
             ->join('categories', 'categories.id', '=', 'items.category_id')
-    ))
+    )
     ->filters([
         'category_name' => new FilterExact('category.name'),
     ])
@@ -328,7 +328,7 @@ Sorting setup example:
 use App\Models\User;
 use Illuminatech\DataProvider\DataProvider;
 
-$dataProvider = (new DataProvider(User::class))
+$dataProvider = DataProvider::new(User::class)
     ->sort([
         'id', // short syntax, equals to `['id' => ['asc' => ['id' => 'asc'], 'desc' => ['id' => 'desc']]]`
         'name' => [
@@ -353,11 +353,11 @@ For example:
 use App\Models\User;
 use Illuminatech\DataProvider\DataProvider;
 
-$dataProvider = (new DataProvider(User::class, [
+$dataProvider = DataProvider::new(User::class, [
         'sort' => [
             'enable_multisort' => true,
         ],
-    ]))
+    ])
     ->sort([
         'id',
         'first_name',
@@ -386,7 +386,7 @@ For example:
 use App\Models\Item;
 use Illuminatech\DataProvider\DataProvider;
 
-$dataProvider = new DataProvider(Item::class);
+$dataProvider = DataProvider::new(Item::class);
 
 var_dump(count($dataProvider->paginate([])->items())); // outputs: 15
 var_dump(count($dataProvider->paginate(['per-page' => 5])->items())); // outputs: 5
@@ -401,7 +401,7 @@ You may control page size boundaries per each data provider using constructor co
 use App\Models\Item;
 use Illuminatech\DataProvider\DataProvider;
 
-$dataProvider = new DataProvider(Item::class, [
+$dataProvider = DataProvider::new(Item::class, [
     'pagination' => [
         'per_page' => [
             'min' => 1,
@@ -429,7 +429,7 @@ use App\Models\Item;
 use Illuminatech\DataProvider\DataProvider;
 use Illuminatech\DataProvider\Includes\IncludeRelation;
 
-$dataProvider = (new DataProvider(Item::class))
+$dataProvider = DataProvider::new(Item::class)
     ->includes([
         'category', // short syntax, equals to `'category' => new IncludeRelation('category')`
         'alias' => 'relation', // short syntax, equals to `'alias' => new IncludeRelation('relation')`,
@@ -458,7 +458,7 @@ use App\Models\Item;
 use Illuminatech\DataProvider\DataProvider;
 use Illuminatech\DataProvider\Fields\Field;
 
-$dataProvider = (new DataProvider(Item::class))
+$dataProvider = DataProvider::new(Item::class)
     ->fields([
         'id', // short syntax, equals to `'id' => new Field('id')`
         'name' => new Field('name'),
@@ -480,7 +480,7 @@ You may specify selectable fields for the related models as well. For example:
 use App\Models\Item;
 use Illuminatech\DataProvider\DataProvider;
 
-$dataProvider = (new DataProvider(Item::class))
+$dataProvider = DataProvider::new(Item::class)
     ->fields([
         'id',
         'name',
@@ -603,7 +603,7 @@ class PurchaseController extends Controller
 {
     public function index(Request $request)
     {
-        $items = (new UserPurchasesList($request->user()))
+        $items = UserPurchasesList::new($request->user())
             ->paginate($request);
             
         // ...
