@@ -1,8 +1,8 @@
 Laravel Data Provider
 =====================
 
-1.0.3 Under Development
------------------------
+1.0.3, June 6, 2022
+-------------------
 
 - Enh #1: Added `DataProvider::new()` static method for a new instance creation (leandrogehlen, klimov-paul)
 
