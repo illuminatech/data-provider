@@ -133,7 +133,7 @@ class DataProvider
      * @since 1.0.3
      *
      * @param mixed ...$args constructor arguments.
-     * @return static new data proviider instance.
+     * @return static new data provider instance.
      */
     public static function new(...$args): self
     {
