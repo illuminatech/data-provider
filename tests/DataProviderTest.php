@@ -165,6 +165,21 @@ class DataProviderTest extends TestCase
         $this->assertSame(20, $items[0]['id']);
     }
 
+    /**
+     * @see https://github.com/illuminatech/data-provider/issues/4
+     *
+     * @depends testGetConfigFromContainer
+     */
+    public function testGetConfigFromContainerWithEmptySpecification()
+    {
+        $this->app->instance('config', new Repository());
+
+        $items = (new DataProvider(Item::class))
+            ->get([]);
+
+        $this->assertNotEmpty($items); // no error should occur so far
+    }
+
     public function testPaginate()
     {
         $items = (new DataProvider(Item::class))

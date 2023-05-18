@@ -122,7 +122,7 @@ class DataProvider
 
         $this->config = array_replace_recursive(
             require __DIR__ . '/../config/data_provider.php',
-            Container::getInstance()->has('config') ? Container::getInstance()->get('config')->get('data_provider') : [],
+            Container::getInstance()->has('config') ? Container::getInstance()->get('config')->get('data_provider', []) : [],
             $config
         );
     }

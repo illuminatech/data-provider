@@ -1,6 +1,12 @@
 Laravel Data Provider
 =====================
 
+1.0.5 Under Development
+-----------------------
+
+- Bug #4: Fixed PHP error on `DataProvider` instantiation, when config file is not published (klimov-paul)
+
+
 1.0.4, February 27, 2023
 ------------------------
 
