@@ -1,6 +1,12 @@
 Laravel Data Provider
 =====================
 
+1.0.6 Under Development
+-----------------------
+
+- Enh: Added support for "illuminate/support" 11.0 (klimov-paul)
+
+
 1.0.5, May 18, 2023
 -------------------
 
