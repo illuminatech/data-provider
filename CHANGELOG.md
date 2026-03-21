@@ -1,6 +1,13 @@
 Laravel Data Provider
 =====================
 
+1.0.8, March 21, 2026
+---------------------
+
+- Enh: Added support for "illuminate/support" 13.0 (klimov-paul)
+- Bug: Fixed missing explicit nullable type hints for PHP 8.4 (klimov-paul)
+
+
 1.0.7, March 6, 2025
 --------------------
 

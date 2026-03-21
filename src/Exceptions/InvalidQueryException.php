@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  */
 class InvalidQueryException extends HttpException
 {
-    public function __construct(string $message = null, \Throwable $previous = null, ?int $code = 0, int $statusCode = Response::HTTP_BAD_REQUEST)
+    public function __construct(?string $message = null, ?\Throwable $previous = null, ?int $code = 0, int $statusCode = Response::HTTP_BAD_REQUEST)
     {
         parent::__construct($statusCode, $message, $previous, [], $code);
     }
